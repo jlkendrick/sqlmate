@@ -5,3 +5,7 @@ steps:
   automapSubstitutions: true
 images:
 - 'us-central1-docker.pkg.dev/cs411-454817/sqlmate/server:v1.1'
+build:
+- serviceAccount: '18170637984-compute@developer.gserviceaccount.com'
+  options:
+    logging: NONE
