@@ -3,3 +3,5 @@ data/worker.ipynb
 frontend/.next
 frontend/src/Example UI.jpeg
 backend/src/secrets.env
+# frontend/next.config.js
+# frontend/next.config.2.ts

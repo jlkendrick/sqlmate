@@ -1,18 +1,21 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   async rewrites() {
+    // Get the API URL from environment variable, with a fallback for local development
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+
     return [
       {
-        source: '/auth/:path*',
-        destination: 'http://127.0.0.1:5000/auth/:path*',
+        source: "/auth/:path*",
+        destination: `${API_URL}/auth/:path*`,
       },
       {
-        source: '/query',
-        destination: 'http://127.0.0.1:5000/query',
+        source: "/query",
+        destination: `${API_URL}/query`,
       },
       {
         source: "/users/:path*",
-        destination: "http://127.0.0.1:5000/users/:path*",
+        destination: `${API_URL}/users/:path*`,
       },
     ];
   },
