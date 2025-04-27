@@ -1,0 +1,16 @@
+{
+	"table": "str",
+	"updates": [
+			{
+					"attribute": "str",
+					"value": "str | int | float | bool | null"
+			}
+	],
+	"constraints": [
+			{
+					"attribute": "str",
+					"operator": "str",
+					"value": "str | int | float | bool | null"
+			}
+	]
+}

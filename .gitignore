@@ -1,0 +1,5 @@
+data/worker.ipynb
+**/__pycache__
+frontend/.next
+frontend/src/Example UI.jpeg
+backend/src/secrets.env

@@ -1,0 +1,3 @@
+SELECT tracks.id AS tracks_id,tracks.isrc AS tracks_isrc,tracks.label AS tracks_label,tracks.spotify_id AS tracks_spotify_id
+FROM tracks
+LIMIT 50

@@ -1,0 +1,141 @@
+[
+	{
+		"table": "tracks",
+		"columns": [
+			{
+				"name": "id",
+				"type": "INT"
+			},
+			{
+				"name": "name",
+				"type": "VARCHAR(255)"
+			},
+			{
+				"name": "album_id",
+				"type": "INT"
+			},
+			{
+				"name": "duration_ms",
+				"type": "INT"
+			},
+			{
+				"name": "preview_url",
+				"type": "VARCHAR(255)"
+			},
+			{
+				"name": "explicit",
+				"type": "BOOLEAN"
+			},
+			{
+				"name": "popularity",
+				"type": "INT"
+			},
+			{
+				"name": "danceability",
+				"type": "DECIMAL(10,2)"
+			},
+			{
+				"name": "energy",
+				"type": "DECIMAL(10,2)"
+			},
+			{
+				"name": "key",
+				"type": "INT"
+			},
+			{
+				"name": "loudness",
+				"type": "DECIMAL(10,2)"
+			},
+			{
+				"name": "mode",
+				"type": "INT"
+			},
+			{
+				"name": "speechiness",
+				"type": "DECIMAL(10,2)"
+			},
+			{
+				"name": "acousticness",
+				"type": "DECIMAL(10,2)"
+			},
+			{
+				"name": "instrumentalness",
+				"type": "DECIMAL(10,2)"
+			},
+			{
+				"name": "liveness",
+				"type": "DECIMAL(10,2)"
+			},
+			{
+				"name": "valence",
+				"type": "DECIMAL(10,2)"
+			},
+			{
+				"name": "tempo",
+				"type": "DECIMAL(10,2)"
+			},
+			{
+				"name": "time_signature",
+				"type": "INT"
+			},
+			{
+				"name": "isrc",
+				"type": "VARCHAR(50)"
+			},
+			{
+				"name": "label",
+				"type": "VARCHAR(100)"
+			},
+			{
+				"name": "spotify_id",
+				"type": "VARCHAR(50)"
+			}
+		]
+	},
+	{
+		"table": "albums",
+		"columns": [
+			{
+				"name": "id",
+				"type": "INT"
+			},
+			{
+				"name": "name",
+				"type": "VARCHAR(255)"
+			},
+			{
+				"name": "release_date",
+				"type": "DATE"
+			},
+			{
+				"name": "image_url",
+				"type": "VARCHAR(100)"
+			},
+			{
+				"name": "spotify_id",
+				"type": "VARCHAR(50)"
+			}
+		]
+	},
+	{
+		"table": "artists",
+		"columns": [
+			{
+				"name": "id",
+				"type": "INT"
+			},
+			{
+				"name": "name",
+				"type": "VARCHAR(255)"
+			},
+			{
+				"name": "genres",
+				"type": "VARCHAR(350)"
+			},
+			{
+				"name": "spotify_id",
+				"type": "VARCHAR(50)"
+			}
+		]
+	}
+]
