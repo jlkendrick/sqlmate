@@ -4,6 +4,7 @@ from utils.serialization import query_output_to_json
 from utils.db import get_cursor, get_timestamp
 from utils.constants import PORT
 
+from models.metadata import metadata
 from models.queries.base import BaseQuery
 from models.queries.update import UpdateQuery
 
@@ -15,7 +16,7 @@ from typing import List
 import json
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, origins=["http://localhost:3000", "https://sqlmate-ruddy.vercel.app"])
 
 @app.route("/")
 def home():
@@ -145,10 +146,14 @@ def save_table():
             cur.callproc("save_user_table", [username, table_name, created_at, query])
         except mysql.connector.IntegrityError as e:
             print(e)
-            return jsonify({"error": e.msg}), 400
+            return jsonify({"error_msg": "Failed to create table"}), 400
         except mysql.connector.Error as e:
             print(e)
-            return jsonify({"error": "Failed to save table"}), 500
+            return jsonify({"error_msg": "Table already exists"}), 500
+        
+    # After we save the table, we need to update metadata to include the new table
+    full_table_name = f"u_{username}_{table_name}"
+    metadata.add_table(full_table_name)
         
     return jsonify({"message": "Table saved successfully"}), 200
 
@@ -249,13 +254,21 @@ def update():
     if error:
         return jsonify({"error": error}), 401
     data = request.get_json()
-    query = UpdateQuery(data, username)
+
+    # Validate the input data
+    try:
+        query = UpdateQuery(data, username)
+    except ValueError as e:
+        print(e)
+        return jsonify({"error_msg": e.args[0]}), 400
+
+
     query_body = generate_update_query(query)
     # with open("logs/update_log.txt", "w") as f:
     #     f.write(query_body)
 
     if not query_body:
-        return jsonify({"error": "Invalid query"}), 400
+        return jsonify({"error_msg": "Invalid query"}), 400
     
     try:
         with get_cursor() as cursor:
@@ -263,7 +276,7 @@ def update():
             result = cursor.rowcount
     except mysql.connector.Error as e:
         print(e)
-        return jsonify({"error": "Failed to update table"}), 500
+        return jsonify({"error_msg": "Failed to update table"}), 500
 
     return jsonify({"message": "Table updated successfully", "success": True, "rows_affected": result}), 200
 
@@ -272,27 +285,41 @@ def update():
 @app.route("/query", methods=["POST"])
 def run_query():
     req: json = request.get_json().get("query", {})
-    query: List[BaseQuery] = [BaseQuery(details) for details in req.get("tables", [])]
+    # with open("logs/input_log.txt", "w") as f:
+    #     f.write(json.dumps(req, indent=4))
+
+    # Validate the input data
+    try:
+        query: List[BaseQuery] = [BaseQuery(details) for details in req.get("tables", [])]
+    except ValueError as e:
+        print(e)
+        return jsonify({"error_msg": e.args[0]}), 400
+
+
     query_body = generate_query(query, req.get("options", {}))
     # with open("logs/query_log.txt", "w") as f:
     #     f.write(query_body)
 
-    with get_cursor() as cursor:
-        cursor.execute(query_body)
-        column_names = [i[0] for i in cursor.description]
-        result = cursor.fetchall()
+    try:
+        with get_cursor() as cursor:
+            cursor.execute(query_body)
+            column_names = [i[0] for i in cursor.description]
+            result = cursor.fetchall()
+    except mysql.connector.Error as e:
+        print(e)
+        return jsonify({"error_msg": "Failed to run query"}), 500
 
     return query_output_to_json(result, column_names, query_body, len(query)), 200
 
 # @app.route("/test_input", methods=["GET"])
 # def test_input():
 #     data: List[BaseQuery] = [BaseQuery(details) for details in request.get_json()]
-#     with open("logs/input_log.txt", "w") as f:
-#         f.write("".join(str(table_query) for table_query in data))
+    # with open("logs/input_log.txt", "w") as f:
+    #     f.write("".join(str(table_query) for table_query in data))
 
 #     return "Hello, world!"
 
 
 if __name__ == "__main__":
     port = PORT
-    app.run(host="0.0.0.0", port=port, threaded=False)
+    app.run(host="0.0.0.0", port=port, threaded=False, debug=True)

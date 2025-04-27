@@ -99,7 +99,8 @@ export async function postUserTable(saveTableData: SaveTableRequest) {
     }),
   });
   if (!response.ok) {
-    throw new Error("User table save failed");
+    const errorData = await response.json();
+    throw new Error(errorData.error_msg || "Table save failed");
   }
   const data: QueryResponse = await response.json();
   return data;
@@ -115,7 +116,8 @@ export async function postVisualQuery(
     body: JSON.stringify({ query: visualQueryData }),
   });
   if (!response.ok) {
-    throw new Error("Visual query failed");
+    const errorData = await response.json();
+    throw new Error(errorData.error_msg || "Visual query failed");
   }
   const data: QueryResponse = await response.json();
   return data;
@@ -133,7 +135,7 @@ export async function postTableUpdate(
 
   if (!response.ok) {
     const errorData = await response.json();
-    throw new Error(errorData.message || "Table update failed");
+    throw new Error(errorData.error_msg || "Table update failed");
   }
 
   const data: TableUpdateResponse = await response.json();

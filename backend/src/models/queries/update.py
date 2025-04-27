@@ -33,7 +33,10 @@ class Update:
             return f"'{str(value)}'"
         # db_type in ["INT", "BOOL", "FLOAT"]
         else:
-            return str(value)
+            if str(value).isnumeric():
+                return str(value)
+            else:
+                raise ValueError(f"Invalid value for update on {self.attribute}: {value}")
     
     def __str__(self) -> str:
         return f"""

@@ -1,14 +1,29 @@
-import React from 'react';
-import type { Table } from '@/types/query';
+import React from "react";
+import type { Table } from "@/types/query";
+import { AlertCircle } from "lucide-react";
 
 type Props = {
   data: Table;
 };
 
 export const QueryResultTable: React.FC<Props> = ({ data }) => {
-  const { columns, rows } = data;
+  const { columns, rows, error } = data;
 
-  if (!columns || !rows || !columns.length || !rows.length) return <p>No results found.</p>;
+  // If there's an error, display it prominently
+  if (error) {
+    return (
+      <div className="p-4 rounded-md bg-red-50 border border-red-200 text-red-700">
+        <div className="flex items-center">
+          <AlertCircle className="h-5 w-5 mr-2" />
+          <span className="font-medium">Query Error: </span>
+          <span className="ml-1">{error}</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (!columns || !rows || !columns.length || !rows.length)
+    return <p>No results found.</p>;
 
   return (
     <div className="overflow-x-auto rounded-xl border border-gray-200 shadow">

@@ -13,7 +13,7 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { SaveIcon } from "lucide-react";
+import { AlertCircle, SaveIcon } from "lucide-react";
 import { postUserTable } from "@/lib/apiClient";
 
 export function ConsolePanel({
@@ -127,7 +127,15 @@ export function ConsolePanel({
       <div className="flex-1 p-4 overflow-auto">
         {activeTab === "results" ? (
           <div className="h-full font-mono text-sm p-3 bg-background rounded border border-border">
-            {consoleOutput ? (
+            {consoleOutput?.error ? (
+              <div className="p-4 rounded-md bg-red-50 border border-red-200 text-red-700">
+                <div className="flex items-center">
+                  <AlertCircle className="h-5 w-5 mr-2" />
+                  <span className="font-medium">Query Error: </span>
+                  <span className="ml-1">{consoleOutput.error}</span>
+                </div>
+              </div>
+            ) : consoleOutput ? (
               <QueryResultTable data={consoleOutput} />
             ) : (
               <p>No results to display</p>

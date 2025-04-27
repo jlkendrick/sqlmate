@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Header } from "@/components/header";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -37,7 +37,7 @@ export default function EditTablePage() {
     ? tableData.columns.map((col) => ({ name: col, type: "" }))
     : [];
 
-  const fetchTableData = async () => {
+  const fetchTableData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
@@ -58,7 +58,7 @@ export default function EditTablePage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [tableName, router]);
 
   const handleUpdateSubmit = async (
     updates: TableUpdateAttribute[],
@@ -95,14 +95,16 @@ export default function EditTablePage() {
       // Refresh the table data to show the updated data
       fetchTableData();
     } catch (err: unknown) {
-      console.error("Update failed:", err);
-      const errorMessage = err instanceof Error ? err.message : String(err);
-      setError(errorMessage || "Failed to update table");
+      const errorMessage =
+        typeof err === "object" && err !== null && "error_msg" in err
+          ? (err.error_msg as string)
+          : err instanceof Error
+          ? err.message
+          : String(err);
 
-      // Show error toast
       toast({
         title: "Update failed",
-        description: errorMessage || "Failed to update table",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -112,7 +114,7 @@ export default function EditTablePage() {
 
   useEffect(() => {
     fetchTableData();
-  }, [tableName, fetchTableData]);
+  }, [fetchTableData]);
 
   return (
     <div className="flex flex-col h-screen">

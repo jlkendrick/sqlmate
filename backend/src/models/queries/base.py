@@ -112,7 +112,7 @@ class Constraint:
         self.value: str = self.process_value(input.get("value", ""))
 
     # Handles if we are comparing strings
-    def process_value(self, value: any) -> str:
+    def process_value(self, value: str) -> str:
         table_name, attribute_name = self.attribute.split(".")
         db_type = metadata.get_type(table_name, attribute_name)
         if db_type in ["STR", "DATE"]:
@@ -128,7 +128,10 @@ class Constraint:
                     new_value = f"'%{value}'" 
                 self.operator = "LIKE"
         else:
-            new_value = str(value)
+            if value.isnumeric():
+                new_value = value
+            else:
+                raise ValueError(f"Invalid value for constraint on {self.attribute}: {value}")
 
         return new_value
 

@@ -6,6 +6,7 @@ import { useDroppable } from "@dnd-kit/core";
 import { TableCustomizationPanel, Column } from "./tableCustomizationPanel";
 import { TableItem } from "./tablePanel";
 import { ArrowUpIcon, ArrowDownIcon } from "lucide-react";
+import { set } from "date-fns";
 
 // Interface for order by priority item
 interface OrderByItem {
@@ -188,13 +189,18 @@ export function StudioCanvas({
       setConsoleOutput(output.table);
       setQueryOutput(output.query);
     } catch (error: unknown) {
+      // Extract the most useful error message
       const errorMessage =
-        error instanceof Error ? error.message : String(error);
+        (error as any).error_msg || // From the API's error_msg field
+        (error instanceof Error ? error.message : null) || // From JS Error object
+        "An error occurred while executing the query"
       setConsoleOutput({
         columns: [],
         rows: [],
-        error: errorMessage || "An error occurred while executing the query",
+        error: errorMessage,
       });
+
+      setQueryOutput(`--Error: ${errorMessage}`);
     }
   };
 

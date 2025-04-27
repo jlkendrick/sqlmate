@@ -20,6 +20,9 @@ class TableTypes:
 	def __init__(self) -> None:
 		self.types: dict[str, str] = {}
 
+	def __str__(self) -> str:
+		return "\n".join([f"{column}: {data_type}" for column, data_type in self.types.items()])
+
 	def add(self, column: str, data_type: str) -> None:
 		if data_type in ["int", "bigint", "smallint", "tinyint"]:
 			data_type = "INT"
@@ -58,6 +61,18 @@ class Metadata:
 				for table, edges in self.graph.items()
 			]
 		)
+	
+	def add_table(self, table_name: str) -> None:
+		with get_cursor() as cur:
+			cur.execute(
+				"""
+				SELECT COLUMN_NAME, DATA_TYPE
+				FROM INFORMATION_SCHEMA.COLUMNS
+				WHERE TABLE_SCHEMA = %s AND TABLE_NAME = %s;
+				""", (DB_NAME, table_name)
+			)
+			for column, data_type in cur.fetchall():
+				self.col_types[table_name].add(column, data_type)
 	
 	def get_col_types(self) -> None:
 		self.cursor.execute(
