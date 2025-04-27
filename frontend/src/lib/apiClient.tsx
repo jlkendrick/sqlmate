@@ -1,6 +1,7 @@
 import type {
   QueryResponse,
   SaveTableRequest,
+  VisualQueryRequest,
   TableUpdateRequest,
   TableUpdateResponse,
 } from "@/types/query";
@@ -25,7 +26,7 @@ export async function deleteUser() {
   const response = await fetch("/auth/delete_user", {
     method: "DELETE",
     headers: getAuthHeaders(),
-    credentials: "include"
+    credentials: "include",
   });
   if (!response.ok) {
     throw new Error("User delete failed");
@@ -104,7 +105,9 @@ export async function postUserTable(saveTableData: SaveTableRequest) {
   return data;
 }
 
-export async function postVisualQuery(visualQueryData: any) {
+export async function postVisualQuery(
+  visualQueryData: VisualQueryRequest
+) {
   const response = await fetch("/query", {
     method: "POST",
     headers: getAuthHeaders(),
@@ -173,7 +176,8 @@ export async function getCurrentUser() {
 // Function to get table data for CSV export
 export async function getTableDataForExport(tableName: string) {
   const response = await fetch(
-    `/users/get_table_data?table_name=${encodeURIComponent(tableName)}`, {
+    `/users/get_table_data?table_name=${encodeURIComponent(tableName)}`,
+    {
       method: "GET",
       headers: getAuthHeaders(),
       credentials: "include",

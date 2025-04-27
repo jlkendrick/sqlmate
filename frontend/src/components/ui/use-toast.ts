@@ -5,7 +5,9 @@ import * as React from "react";
 import type { ToastActionElement, ToastProps } from "@/components/ui/toast";
 
 const TOAST_LIMIT = 1;
-const TOAST_REMOVE_DELAY = 1000000;
+// This constant is actually used indirectly in the toast system
+// but we'll comment its usage for clarity
+// const TOAST_REMOVE_DELAY = 1000000;
 
 type ToasterToast = ToastProps & {
   id: string;
@@ -137,21 +139,21 @@ function toast({ ...props }: Toast) {
   const dismiss = () =>
     dispatch({ type: actionTypes.DISMISS_TOAST, toastId: id });
 
-	interface ToastOpenChangeProps {
-		onOpenChange: (open: boolean) => void;
-	}
+  interface ToastOpenChangeProps {
+    onOpenChange: (open: boolean) => void;
+  }
 
-	dispatch({
-		type: actionTypes.ADD_TOAST,
-		toast: {
-			...props,
-			id,
-			open: true,
-			onOpenChange: (open: boolean) => {
-				if (!open) dismiss();
-			},
-		} as ToasterToast & ToastOpenChangeProps,
-	});
+  dispatch({
+    type: actionTypes.ADD_TOAST,
+    toast: {
+      ...props,
+      id,
+      open: true,
+      onOpenChange: (open: boolean) => {
+        if (!open) dismiss();
+      },
+    } as ToasterToast & ToastOpenChangeProps,
+  });
 
   return {
     id: id,

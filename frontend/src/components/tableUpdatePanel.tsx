@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PlusIcon, Trash2Icon } from "lucide-react";
 import { TableUpdateAttribute, TableUpdateConstraint } from "@/types/query";
 
 interface TableUpdatePanelProps {
-  tableName: string;
   columns: { name: string; type: string }[];
   onSubmit: (
     updates: TableUpdateAttribute[],
@@ -28,7 +27,6 @@ type ConstraintRow = {
 };
 
 export function TableUpdatePanel({
-  tableName,
   columns,
   onSubmit,
   isSubmitting,
@@ -150,7 +148,7 @@ export function TableUpdatePanel({
       <div className="mb-4">
         <h3 className="text-sm font-medium mb-2">Set New Values</h3>
         <div className="space-y-2 mb-2">
-          {updates.map((update, index) => (
+          {updates.map((update) => (
             <div key={update.id} className="flex items-center gap-2">
               <select
                 className="bg-transparent border border-input rounded px-2 py-1 flex-1"
@@ -202,7 +200,7 @@ export function TableUpdatePanel({
       <div className="mb-4">
         <h3 className="text-sm font-medium mb-2">Where (Constraints)</h3>
         <div className="space-y-2 mb-2">
-          {constraints.map((constraint, index) => (
+          {constraints.map((constraint) => (
             <div key={constraint.id} className="flex items-center gap-2">
               <select
                 className="bg-transparent border border-input rounded px-2 py-1 flex-1"

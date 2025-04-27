@@ -48,10 +48,12 @@ export default function ProfilePage() {
       });
       logout(); // Log the user out after successful deletion
       router.push("/"); // Redirect to home page
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       toast({
         title: "Error",
-        description: error.message || "Failed to delete account",
+        description: errorMessage || "Failed to delete account",
         variant: "destructive",
       });
       setIsDeleting(false); // Only reset if there was an error

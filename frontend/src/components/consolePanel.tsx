@@ -67,18 +67,21 @@ export function ConsolePanel({
         setShowSaveDialog(false);
         setSaveSuccess(null);
       }, 1500);
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Handle auth errors - redirect to login if not authenticated
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+
       if (
-        error.message?.includes("401") ||
-        error.message?.includes("unauthorized")
+        errorMessage.includes("401") ||
+        errorMessage.includes("unauthorized")
       ) {
         router.push("/login");
         return;
       }
 
       // Set error message for other errors
-      setSaveError(error.message || "Failed to save table");
+      setSaveError(errorMessage || "Failed to save table");
     } finally {
       setIsSaving(false);
     }

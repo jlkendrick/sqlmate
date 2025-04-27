@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { TrashIcon, RefreshCw, PencilIcon, Download } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { Header } from "@/components/header";
-import { DeleteTableResponse, Table } from "@/types/query";
+import { DeleteTableResponse } from "@/types/query";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
@@ -39,8 +39,9 @@ export default function MyTablesPage() {
       setTables(data);
       // Clear selections when refreshing
       setSelectedTables([]);
-    } catch (err: any) {
-      setError(err.message || "Failed to fetch tables");
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      setError(errorMessage || "Failed to fetch tables");
     } finally {
       setIsLoading(false);
     }
@@ -81,8 +82,9 @@ export default function MyTablesPage() {
       } else {
         setError(`Failed to delete table: ${response.message}`);
       }
-    } catch (err: any) {
-      setError(err.message || "Failed to delete table");
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      setError(errorMessage || "Failed to delete table");
     } finally {
       setDeleteLoading(false);
     }
@@ -111,8 +113,9 @@ export default function MyTablesPage() {
       } else {
         setError(`Failed to delete tables: ${response.message}`);
       }
-    } catch (err: any) {
-      setError(err.message || "Failed to delete tables");
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      setError(errorMessage || "Failed to delete table");
     } finally {
       setDeleteLoading(false);
     }
@@ -132,11 +135,12 @@ export default function MyTablesPage() {
         title: "Download successful",
         description: `${tableName}.csv has been downloaded`,
       });
-    } catch (err: any) {
-      setError(err.message || "Failed to download table");
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      setError(errorMessage || "Failed to download table");
       toast({
         title: "Download failed",
-        description: err.message || "Failed to download table",
+        description: errorMessage || "Failed to download table",
         variant: "destructive",
       });
     } finally {
@@ -194,11 +198,11 @@ export default function MyTablesPage() {
         ) : tables.length === 0 ? (
           <Card className="p-6 text-center bg-muted/20">
             <p className="text-muted-foreground mb-4">
-              You don't have any saved tables yet.
+              You don&apos;t have any saved tables yet.
             </p>
             <p className="text-sm">
-              Run a query and click the "Save Table" button to save your
-              results.
+              Run a query and click the &quot;Save Table&quot; button to save
+              your results.
             </p>
           </Card>
         ) : (

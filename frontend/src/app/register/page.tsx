@@ -24,8 +24,8 @@ export default function RegisterPage() {
     try {
       await register(form.username, form.password, form.email);
       router.push("/login");
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err));
     } finally {
       setLoading(false);
     }
@@ -47,7 +47,13 @@ export default function RegisterPage() {
               <input
                 name={field}
                 type={field === "password" ? "password" : "text"}
-                value={(form as any)[field]}
+                value={
+                  field === "username"
+                    ? form.username
+                    : field === "email"
+                    ? form.email
+                    : form.password
+                }
                 onChange={onChange}
                 required
                 className={cn(

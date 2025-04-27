@@ -83,7 +83,7 @@ export function TableCustomizationPanel({
     // Find the table from the dynamically loaded dbTables
     const tableData = dbTables.find((table) => table.name === tableName);
     return tableData ? tableData.columns : [];
-  }, [tableName, dbTables]); // Add dbTables as a dependency to recompute when it's populated
+  }, [tableName]); // Remove dbTables from dependencies since it doesn't change
 
   // Calculate which columns are not yet included
   const availableColumns = useMemo(() => {

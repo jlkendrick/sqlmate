@@ -30,7 +30,8 @@ export function StudioCanvas({
   setDroppedTables,
 }: StudioCanvasProps) {
   const [anyTableHasGroupBy, setAnyTableHasGroupBy] = useState(false);
-  const [tablesWithGroupBy, setTablesWithGroupBy] = useState<
+  // Removing unused state variable
+  const [_, setTablesWithGroupBy] = useState<
     Record<string, boolean>
   >({});
   const [queryLimit, setQueryLimit] = useState<number | undefined>(undefined);
@@ -81,7 +82,7 @@ export function StudioCanvas({
         prevTables.filter((table: TableItem) => table.id !== tableId)
       );
     },
-    [setDroppedTables]
+    [setDroppedTables, setOrderByPriority]
   );
 
   const handleGroupByChange = useCallback(
@@ -101,7 +102,7 @@ export function StudioCanvas({
         return updated;
       });
     },
-    []
+    [setAnyTableHasGroupBy]
   );
 
   // Handle column changes from TableCustomizationPanel
@@ -163,13 +164,7 @@ export function StudioCanvas({
         }
       >
     );
-  }, [
-    droppedTables,
-    removeTable,
-    handleGroupByChange,
-    handleColumnsChange,
-    orderByPriority,
-  ]);
+  }, [droppedTables, removeTable, handleGroupByChange, handleColumnsChange]);
 
   const handleRunVisualQuery = async () => {
     try {
@@ -192,11 +187,13 @@ export function StudioCanvas({
       );
       setConsoleOutput(output.table);
       setQueryOutput(output.query);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       setConsoleOutput({
         columns: [],
         rows: [],
-        error: error.message || "An error occurred while executing the query",
+        error: errorMessage || "An error occurred while executing the query",
       });
     }
   };
@@ -252,7 +249,7 @@ export function StudioCanvas({
     if (hasChanges) {
       setOrderByPriority(finalOrderByItems);
     }
-  }, [droppedTables, orderByPriority]); // Add orderByPriority to dependencies
+  }, [droppedTables, orderByPriority]);
 
   // Functions to handle reordering of the orderBy priority list
   const moveOrderByItemUp = (index: number) => {

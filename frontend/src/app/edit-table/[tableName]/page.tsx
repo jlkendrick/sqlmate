@@ -1,11 +1,11 @@
 "use client";
 
-import React, { use, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Header } from "@/components/header";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, RefreshCw, CheckCircle, AlertCircle } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { getTableData, postTableUpdate } from "@/lib/apiClient";
 import { QueryResultTable } from "@/components/queryResultTable";
 import { TableUpdatePanel } from "@/components/tableUpdatePanel";
@@ -14,19 +14,12 @@ import type {
   Table,
   TableUpdateAttribute,
   TableUpdateConstraint,
-  TableUpdateResponse,
 } from "@/types/query";
 
-interface EditTablePageProps {
-  params: {
-    tableName: string;
-  };
-}
-
-export default function EditTablePage({ params }: EditTablePageProps) {
-  // Access the tableName directly from params
-  // @ts-ignore - Suppress Next.js params access warning
-  const { tableName } = use(params);
+export default function EditTablePage() {
+  // Use the useParams hook to get the tableName parameter
+  const params = useParams();
+  const tableName = params?.tableName as string;
 
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
@@ -50,13 +43,14 @@ export default function EditTablePage({ params }: EditTablePageProps) {
     try {
       const data = await getTableData(tableName);
       setTableData(data);
-    } catch (err: any) {
-      setError(err.message || "Failed to fetch table data");
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      setError(errorMessage || "Failed to fetch table data");
 
       // Handle unauthorized errors
       if (
-        err.message?.includes("401") ||
-        err.message?.includes("unauthorized")
+        errorMessage.includes("401") ||
+        errorMessage.includes("unauthorized")
       ) {
         router.push("/login");
         return;
@@ -100,14 +94,15 @@ export default function EditTablePage({ params }: EditTablePageProps) {
 
       // Refresh the table data to show the updated data
       fetchTableData();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Update failed:", err);
-      setError(err.message || "Failed to update table");
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      setError(errorMessage || "Failed to update table");
 
       // Show error toast
       toast({
         title: "Update failed",
-        description: err.message || "Failed to update table",
+        description: errorMessage || "Failed to update table",
         variant: "destructive",
       });
     } finally {
@@ -117,7 +112,7 @@ export default function EditTablePage({ params }: EditTablePageProps) {
 
   useEffect(() => {
     fetchTableData();
-  }, [tableName]);
+  }, [tableName, fetchTableData]);
 
   return (
     <div className="flex flex-col h-screen">
@@ -175,7 +170,6 @@ export default function EditTablePage({ params }: EditTablePageProps) {
         {/* Table Update Panel */}
         {!isLoading && tableData && (
           <TableUpdatePanel
-            tableName={tableName}
             columns={columns}
             onSubmit={handleUpdateSubmit}
             isSubmitting={isSubmitting}

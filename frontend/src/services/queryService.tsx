@@ -3,10 +3,8 @@ import { TableItem } from "@/components/tablePanel";
 import { Column } from "@/components/tableCustomizationPanel";
 import {
   QueryResponse,
-  VisualQuery,
   VisualQueryTable,
   VisualQueryRequest,
-  VisualQueryOrderBy,
 } from "@/types/query";
 
 interface OrderByPriorityItem {
