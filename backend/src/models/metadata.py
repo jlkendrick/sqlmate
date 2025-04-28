@@ -39,9 +39,6 @@ class TableTypes:
 	
 	def get(self, column: str) -> str:
 		return self.types[column] if column in self.types else ""
-	
-	def __str__(self) -> str:
-		return "\n".join([f"{column}: {data_type}" for column, data_type in self.types.items()])
 
 
 # This class is used to manage the metadata of the database in the form of a graph.

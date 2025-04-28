@@ -1,61 +1,58 @@
-
-        (
-            'table': test1
-            'attributes': test1.id, test1.name, test1.score
-            'constraints': 
-            (
-                'attribute': test1.name,
-                'operation': =,
-                'value': James
-            )
-        
-            (
-                'attribute': test1.name,
-                'operation': =,
-                'value': Juno
-            )
-        
-            'group_by': test1.id, name, test1.date
-            'aggregations': 
-            (
-                'attribute': test1.score
-                'type': avg
-            )
-        
-            (
-                'attribute': test1.size
-                'type': max
-            )
-        
-        )
-        
-        (
-            'table': test2
-            'attributes': test2.id, test2.name, test2.money
-            'constraints': 
-            (
-                'attribute': test2.name,
-                'operation': =,
-                'value': James
-            )
-        
-            (
-                'attribute': test2.name,
-                'operation': =,
-                'value': Juno
-            )
-        
-            'group_by': test2.id, name, test2.date
-            'aggregations': 
-            (
-                'attribute': test2.score
-                'type': avg
-            )
-        
-            (
-                'attribute': test2.size
-                'type': max
-            )
-        
-        )
-        
+{
+    "tables": [
+        {
+            "table": "artists",
+            "attributes": [
+                {
+                    "attribute": "id",
+                    "alias": ""
+                },
+                {
+                    "attribute": "name",
+                    "alias": "artist_name"
+                }
+            ],
+            "constraints": [
+                {
+                    "attribute": "name",
+                    "operator": "PREFIX",
+                    "value": "Taylor Sw"
+                }
+            ],
+            "group_by": [
+                "id",
+                "name"
+            ],
+            "aggregations": [
+                {}
+            ]
+        },
+        {
+            "table": "albums",
+            "attributes": [
+                {
+                    "attribute": "release_date",
+                    "alias": "date"
+                }
+            ],
+            "constraints": [],
+            "group_by": [],
+            "aggregations": [
+                {
+                    "attribute": "release_date",
+                    "type": "max"
+                }
+            ]
+        }
+    ],
+    "options": {
+        "limit": 5,
+        "order_by": [
+            {
+                "table_name": "albums",
+                "attribute": "release_date",
+                "sort": "DESC"
+            }
+        ]
+    }
+}

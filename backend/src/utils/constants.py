@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 import os
 
-load_dotenv('src/secrets.env')
+load_dotenv('/app/secrets.env')
 
 # Port
 PORT = int(os.getenv("PORT", 8080))
