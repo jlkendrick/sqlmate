@@ -307,7 +307,7 @@ def run_query():
             result = cursor.fetchall()
     except mysql.connector.Error as e:
         print(e)
-        return jsonify({"error_msg": "Failed to run query"}), 500
+        return jsonify({"error_msg": "Failed to run query:" + e}), 500
 
     return query_output_to_json(result, column_names, query_body, len(query)), 200
 

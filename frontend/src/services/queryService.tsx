@@ -26,6 +26,7 @@ export async function runVisualQuery(
   );
   console.log("Serialized Data:", serializedData);
   const response = await postVisualQuery(serializedData);
+  console.log("Response from API:", response);
   return response;
 }
 
