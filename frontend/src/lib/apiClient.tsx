@@ -113,7 +113,7 @@ export async function postVisualQuery(
     method: "POST",
     headers: getAuthHeaders(),
     credentials: "include",
-    body: JSON.stringify({ query: visualQueryData }),
+    body: JSON.stringify(visualQueryData),
   });
   if (!response.ok) {
     const errorData = await response.json();

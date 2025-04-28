@@ -284,7 +284,7 @@ def update():
 # ================================= QUERY ENDPOINTS =================================
 @app.route("/query", methods=["POST"])
 def run_query():
-    req: json = request.get_json().get("query", {})
+    req: json = request.get_json()
     # with open("logs/input_log.txt", "w") as f:
     #     f.write(json.dumps(req, indent=4))
 
