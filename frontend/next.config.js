@@ -3,6 +3,7 @@ const nextConfig = {
   async rewrites() {
     // Get the API URL from environment variable, with a fallback for local development
 
+
     return [
       {
         source: "/auth/:path*",

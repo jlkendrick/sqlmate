@@ -1,7 +1,3 @@
-SELECT artists.id AS artists_id,artists.name AS artist_name,max(albums.release_date) AS date
+SELECT 
 FROM artists
-JOIN album_artists ON artists.id=album_artists.artist_id JOIN albums ON album_artists.album_id=albums.id
-WHERE artists.name LIKE 'Taylor Sw%'
-GROUP BY artists.id,artists.name
-ORDER BY date DESC
-LIMIT 5
+LIMIT 9

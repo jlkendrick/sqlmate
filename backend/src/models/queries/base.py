@@ -8,6 +8,8 @@ import json
 class BaseQuery:
     def __init__(self, input: json, username: str = "") -> None:
         self.table_name: str = self.format_table_name(username, input.get("table", ""))
+        if not input.get("attributes"):
+            raise ValueError(f"No attribues selected for {self.table_name} table")
         self.attributes: List[Attribute] = [Attribute(details, self.table_name) for details in input.get("attributes", [])]
         self.constraints: List[Constraint] = [Constraint(details, self.table_name) for details in input.get("constraints", [])]
         self.group_by: List[str] = [f"{self.table_name}.{attribute}" for attribute in input.get("group_by", [])]

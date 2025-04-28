@@ -116,10 +116,7 @@ export async function postVisualQuery(
     body: JSON.stringify(visualQueryData),
   });
   if (!response.ok) {
-    console.log("Visual query failed with status:", response.status);
-    console.log("Response body:", await response.text());
     const errorData = await response.json();
-    console.log("Error data:", errorData);
     throw new Error(errorData.error_msg || "Visual query failed");
   }
   const data: QueryResponse = await response.json();

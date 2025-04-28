@@ -2,57 +2,13 @@
     "tables": [
         {
             "table": "artists",
-            "attributes": [
-                {
-                    "attribute": "id",
-                    "alias": ""
-                },
-                {
-                    "attribute": "name",
-                    "alias": "artist_name"
-                }
-            ],
-            "constraints": [
-                {
-                    "attribute": "name",
-                    "operator": "PREFIX",
-                    "value": "Taylor Sw"
-                }
-            ],
-            "group_by": [
-                "id",
-                "name"
-            ],
-            "aggregations": [
-                {}
-            ]
-        },
-        {
-            "table": "albums",
-            "attributes": [
-                {
-                    "attribute": "release_date",
-                    "alias": "date"
-                }
-            ],
+            "attributes": [],
             "constraints": [],
             "group_by": [],
-            "aggregations": [
-                {
-                    "attribute": "release_date",
-                    "type": "max"
-                }
-            ]
+            "aggregations": []
         }
     ],
     "options": {
-        "limit": 5,
-        "order_by": [
-            {
-                "table_name": "albums",
-                "attribute": "release_date",
-                "sort": "DESC"
-            }
-        ]
+        "limit": 9
     }
 }

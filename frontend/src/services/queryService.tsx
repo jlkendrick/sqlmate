@@ -24,9 +24,8 @@ export async function runVisualQuery(
     limit,
     orderByPriority
   );
-  console.log("Serialized Data:", serializedData);
+  console.log("Serialized Data:", JSON.stringify(serializedData, null, 2));
   const response = await postVisualQuery(serializedData);
-  console.log("Response from API:", response);
   return response;
 }
 
@@ -39,14 +38,24 @@ function serializeTablesForQuery(
     // Ensure we're using the customColumns array if it exists, otherwise use a default empty array
     const columns = (table.customColumns || []) as Column[];
 
+    // Check if we need to include all original columns from the table
+    // If no customColumns are defined or the array is empty, include all original columns
+    const shouldIncludeAllOriginalColumns = columns.length === 0;
+
+    // Create the table object with appropriate attributes
     return {
       table: table.name,
 
       // Include all columns, whether they have an alias or not
-      attributes: columns.map((col) => ({
-        attribute: col.name,
-        alias: col.alias || "", // Use empty string if alias is not provided
-      })),
+      attributes: shouldIncludeAllOriginalColumns
+        ? table.columns.map((col) => ({
+            attribute: col.name,
+            alias: "", // Empty alias for original columns
+          }))
+        : columns.map((col) => ({
+            attribute: col.name,
+            alias: col.alias || "", // Use empty string if alias is not provided
+          })),
 
       // Other properties remain the same
       constraints: columns
