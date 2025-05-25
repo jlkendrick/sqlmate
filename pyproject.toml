@@ -1,0 +1,12 @@
+[project]
+name = "sqlmate"
+version = "0.1.0"
+description = "A simple CLI for running the SQLMate Docker app"
+authors = [{name = "James Kendrick", email = "jlkendric@yahoo.com"}]
+dependencies = []
+
+[project.scripts]
+sqlmate = "cli.__main__:main"
+
+[tool.setuptools]
+packages = ["cli"]
