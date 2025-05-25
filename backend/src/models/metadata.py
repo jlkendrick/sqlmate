@@ -1,8 +1,8 @@
 from collections import defaultdict, deque
 from utils.constants import DB_NAME
 from utils.db import get_cursor
-from typing import List
-import mysql.connector
+from typing import List, Any
+from mysql.connector.abstracts import MySQLCursorAbstract
 
 
 class Edge:
@@ -44,9 +44,9 @@ class TableTypes:
 # This class is used to manage the metadata of the database in the form of a graph.
 # It fetches the foreign key relationships between tables to construct the graph.
 class Metadata:
-	def __init__(self, cursor: mysql.connector.cursor.MySQLCursor) -> None:
+	def __init__(self, cursor: MySQLCursorAbstract) -> None:
 		self.col_types: defaultdict[str, TableTypes] = defaultdict(TableTypes)
-		self.cursor: mysql.connector.cursor.MySQLCursor = cursor
+		self.cursor: MySQLCursorAbstract = cursor
 		self.graph: dict[str, List[Edge]] = defaultdict(list)
 		self.get_col_types()
 		self.generate_graph()
@@ -68,7 +68,8 @@ class Metadata:
 				WHERE TABLE_SCHEMA = %s AND TABLE_NAME = %s;
 				""", (DB_NAME, table_name)
 			)
-			for column, data_type in cur.fetchall():
+			rows: List[Any] = cur.fetchall()
+			for column, data_type in rows:
 				self.col_types[table_name].add(column, data_type)
 	
 	def get_col_types(self) -> None:
@@ -80,8 +81,8 @@ class Metadata:
     	ORDER BY TABLE_NAME, ORDINAL_POSITION;
 			""", (DB_NAME, )
 		)
-
-		for table, column, data_type in self.cursor.fetchall():
+		rows: List[Any] = self.cursor.fetchall()
+		for table, column, data_type in rows:
 			self.col_types[table].add(column, data_type)
 
 	def generate_graph(self) -> None:
@@ -92,7 +93,8 @@ class Metadata:
 			WHERE TABLE_SCHEMA = %s;
 			""", (DB_NAME,)
 		)
-		tables = [table[0] for table in self.cursor.fetchall()]
+		rows: List[Any] = self.cursor.fetchall()
+		tables: List[str] = [table[0] for table in rows]
 
 		for table in tables:
 			self.cursor.execute("""
@@ -107,7 +109,7 @@ class Metadata:
 				AND kcu.TABLE_NAME = %s
 				AND kcu.REFERENCED_TABLE_NAME IS NOT NULL;
     		""", (DB_NAME, table))
-			metadata = self.cursor.fetchall()
+			metadata: List[Any] = self.cursor.fetchall()
 
 			for column, referenced_table, referenced_column in metadata:
 				self.graph[table].append(
@@ -132,6 +134,12 @@ class Metadata:
 					queue.append((edge.destination, f'{clause}{"" if node == source else " "}JOIN {edge.destination} ON {str(edge)}'))
 		
 		raise ValueError(f"No path found between {source} and {destination}")
+	
+	def get_edge(self, source: str, destination: str) -> str:
+		for edge in self.graph[source]:
+			if edge.destination == destination:
+				return str(edge)
+		raise ValueError(f"No edge found between {source} and {destination}")
 
 	def get_edges(self, source: str) -> List[Edge]:
 		return self.graph[source]

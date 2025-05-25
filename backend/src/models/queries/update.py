@@ -1,11 +1,10 @@
 from ..metadata import metadata
 from .base import BaseQuery
-from typing import List
-import json
+from typing import List, Any
 
 # Update query class
 class UpdateQuery(BaseQuery):
-    def __init__(self, input: json, username: str) -> None:
+    def __init__(self, input: dict, username: str) -> None:
         super().__init__(input, username)
         self.updates: List[Update] = [Update(details, self.table_name) for details in input.get("updates", [])]
         
@@ -21,12 +20,12 @@ class UpdateQuery(BaseQuery):
         return clause
 
 class Update:
-    def __init__(self, input: json, table_name: str) -> None:
+    def __init__(self, input: dict, table_name: str) -> None:
         self.table_name: str = table_name
         self.attribute: str = f'{table_name}.{input.get("attribute", "")}'
         self.value: str = self.process_value(input.get("value", ""))
 
-    def process_value(self, value: any) -> str:
+    def process_value(self, value: Any) -> str:
         table_name, attribute_name = self.attribute.split(".")
         db_type = metadata.get_type(table_name, attribute_name)
         if db_type in ["STR", "DATE"] :

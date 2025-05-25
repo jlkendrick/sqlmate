@@ -7,15 +7,15 @@ const nextConfig = {
     return [
       {
         source: "/auth/:path*",
-        destination: "https://sqlmate-18170637984.us-central1.run.app/auth/:path*",
+        destination: "http://127.0.0.1:8080/auth/:path*",
       },
       {
         source: "/query",
-        destination: "https://sqlmate-18170637984.us-central1.run.app/query",
+        destination: "http://127.0.0.1:8080/query",
       },
       {
         source: "/users/:path*",
-        destination: "https://sqlmate-18170637984.us-central1.run.app/users/:path*",
+        destination: "http://127.0.0.1:8080/users/:path*",
       },
     ];
   },

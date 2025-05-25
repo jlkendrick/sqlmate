@@ -1,6 +1,6 @@
 from utils.auth import hash_password, check_password, create_access_token, check_user
 from utils.generators import generate_query, generate_update_query
-from utils.serialization import query_output_to_json
+from utils.serialization import query_output_to_dict
 from utils.db import get_cursor, get_timestamp
 from utils.constants import PORT
 
@@ -12,8 +12,7 @@ from models.queries.update import UpdateQuery
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import mysql.connector
-from typing import List
-import json
+from typing import List, Any, Dict
 
 app = Flask(__name__)
 CORS(app, origins=["http://localhost:3000", "https://sqlmate-ruddy.vercel.app"], supports_credentials=True, methods=["GET", "POST", "PUT", "DELETE"])
@@ -58,7 +57,7 @@ def login():
 
     with get_cursor() as cur:
         cur.execute("SELECT pass, email FROM users WHERE username = %s",(username,))
-        row = cur.fetchone()
+        row: Any = cur.fetchone()
 
     # If user not found or password does not match, return error
     if not row or not check_password(password, row[0]):
@@ -90,7 +89,7 @@ def me():
           "SELECT username, email FROM users WHERE username = %s",
           (username,)
         )
-        row = cur.fetchone()
+        row: Any = cur.fetchone()
 
     if not row:
         return jsonify({"error":"User not found"}), 404
@@ -208,7 +207,7 @@ def get_tables():
     with get_cursor() as cur:
         try:
             cur.execute("SELECT table_name, created_at FROM user_tables WHERE username = %s", (username,))
-            rows = cur.fetchall()
+            rows: List[Any] = cur.fetchall()
         except mysql.connector.Error as e:
             print(e)
             return jsonify({"error": "Failed to get tables"}), 500
@@ -236,15 +235,17 @@ def get_table_data():
     with get_cursor() as cur:
         try:
             cur.execute(query)
-            rows = cur.fetchall()
-            column_names = [i[0] for i in cur.description]
+            rows: List[Any] = cur.fetchall()
+            if cur.description is None:
+                return jsonify({"error": "No data found"}), 404
+            column_names: List[str] = [i[0] for i in cur.description]
         except mysql.connector.Error as e:
             print(e)
             return jsonify({"error": "Failed to get table data"}), 500
     if not rows:
         return jsonify({"message": "No data found"}), 404
     
-    return query_output_to_json(rows, column_names, "", 0), 200
+    return jsonify(query_output_to_dict(rows, column_names, "", 0)), 200
 
 @app.route("/users/update_table", methods=["POST"])
 def update():
@@ -284,7 +285,7 @@ def update():
 # ================================= QUERY ENDPOINTS =================================
 @app.route("/query", methods=["POST"])
 def run_query():
-    req: json = request.get_json()
+    req: Dict = request.get_json()
     # with open("logs/input_log.txt", "w") as f:
     #     f.write(json.dumps(req, indent=4))
 
@@ -303,21 +304,15 @@ def run_query():
     try:
         with get_cursor() as cursor:
             cursor.execute(query_body)
+            if cursor.description is None:
+                return jsonify({"error": "No data found"}), 404
             column_names = [i[0] for i in cursor.description]
-            result = cursor.fetchall()
+            rows: Any = cursor.fetchall()
     except mysql.connector.Error as e:
         print(e)
         return jsonify({"error_msg": f"Failed to run query: {query_body}"}), 500
 
-    return query_output_to_json(result, column_names, query_body, len(query)), 200
-
-# @app.route("/test_input", methods=["GET"])
-# def test_input():
-#     data: List[BaseQuery] = [BaseQuery(details) for details in request.get_json()]
-    # with open("logs/input_log.txt", "w") as f:
-    #     f.write("".join(str(table_query) for table_query in data))
-
-#     return "Hello, world!"
+    return jsonify(query_output_to_dict(rows, column_names, query_body, len(query))), 200
 
 
 if __name__ == "__main__":

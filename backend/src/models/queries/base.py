@@ -1,12 +1,11 @@
 from ..metadata import metadata
 from typing import List
-import json
 
 
 # Class that will be used to initialize a TableQuery object
 # which we will use to generate the query
 class BaseQuery:
-    def __init__(self, input: json, username: str = "") -> None:
+    def __init__(self, input: dict, username: str = "") -> None:
         self.table_name: str = self.format_table_name(username, input.get("table", ""))
         if not input.get("attributes"):
             raise ValueError(f"No attribues selected for {self.table_name} table")
@@ -94,7 +93,7 @@ class BaseQuery:
         """
 
 class Attribute:
-    def __init__(self, input: json, table_name: str) -> None:
+    def __init__(self, input: dict, table_name: str) -> None:
         self.attribute: str = f"{table_name}.{input.get('attribute', '')}"
         self.alias: str = input.get("alias", "")
 
@@ -108,7 +107,7 @@ class Attribute:
 
 
 class Constraint:
-    def __init__(self, input: json, table_name: str) -> None:
+    def __init__(self, input: dict, table_name: str) -> None:
         self.attribute: str = f'{table_name}.{input.get("attribute", "")}'
         self.operator: str = input.get("operator", "")
         self.value: str = self.process_value(input.get("value", ""))
@@ -148,7 +147,7 @@ class Constraint:
 
 
 class Aggregation:
-    def __init__(self, input: json, table_name: str) -> None:
+    def __init__(self, input: dict, table_name: str) -> None:
         self.attribute: str = (
             f'{table_name}.{input.get("attribute", "")}'
         )
@@ -163,7 +162,7 @@ class Aggregation:
         """
 
 class Ordering:
-    def __init__(self, input: json, table_name: str) -> None:
+    def __init__(self, input: dict, table_name: str) -> None:
         self.attribute: str = f'{table_name}.{input.get("attribute", "")}'
         self.sort: str = input.get("sort", "")
 

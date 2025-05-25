@@ -1,8 +1,6 @@
-from flask import jsonify
-
-def query_output_to_json(query_output: list[tuple], column_names: list[str], query_body: str, num_tables: int) -> dict:
+def query_output_to_dict(query_output: list[tuple], column_names: list[str], query_body: str, num_tables: int) -> dict:
 	if not query_output:
-		return []
+		return {}
 	
 	# If the query is a single table query, we can remove the table name from the column names
 	if num_tables == 1:
@@ -30,4 +28,4 @@ def query_output_to_json(query_output: list[tuple], column_names: list[str], que
 		},
 		'query': query_body
 	}
-	return jsonify(response)
+	return response
