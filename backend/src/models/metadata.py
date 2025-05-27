@@ -76,9 +76,9 @@ class Metadata:
 		self.cursor.execute(
 			"""
 			SELECT TABLE_NAME, COLUMN_NAME, DATA_TYPE
-    	FROM INFORMATION_SCHEMA.COLUMNS
-    	WHERE TABLE_SCHEMA = %s
-    	ORDER BY TABLE_NAME, ORDINAL_POSITION;
+			FROM INFORMATION_SCHEMA.COLUMNS
+			WHERE TABLE_SCHEMA = %s
+			ORDER BY TABLE_NAME, ORDINAL_POSITION;
 			""", (DB_NAME, )
 		)
 		rows: List[Any] = self.cursor.fetchall()

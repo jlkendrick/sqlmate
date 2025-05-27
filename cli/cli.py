@@ -1,65 +1,9 @@
-# sqlmate/cli/cli.py
 import argparse
 import os
-import secrets
 import subprocess
-import getpass
-from pathlib import Path
-from importlib.resources import files
 
-TEMPLATE_DIR = Path(__file__).parent / "templates"
-docker_compose_file = files("cli.docker") / "docker-compose.yaml"
-secrets_file = os.path.join(os.path.expanduser("~"), ".sqlmate", "secrets.env")
-
-def generate_defaults() -> dict:
-    """Generate default values for database connection credentials."""
-
-    defaults = {
-        "PORT": 5432,
-        "DB_HOST": "localhost",
-        "DB_USER": "root",
-        "DB_PASSWORD": "",
-        "DB_NAME": "sqlmate",
-        "JWT_SECRET": secrets.token_urlsafe(16),
-    }
-
-    # If the secrets.env file already exists, read the existing values to be used as defaults
-    if os.path.exists(secrets_file):
-        with open(secrets_file, "r") as f:
-            for line in f:
-                key, value = line.strip().split("=", 1)
-                if key in defaults:
-                    defaults[key] = value.strip("'\"")
-
-    return defaults
-
-def prompt_for_credentials(defaults: dict) -> dict:
-    """Prompt the user for database connection credentials."""
-    print("📝 Please enter your database connection details:")
-    
-    # Collect credentials with defaults
-    credentials = {}
-    credentials["PORT"] = input(f"API Port [{defaults['PORT']}]: ") or defaults["PORT"]
-    credentials["DB_HOST"] = input(f"Database Host [{defaults['DB_HOST']}]: ") or defaults["DB_HOST"]
-    credentials["DB_USER"] = input(f"Database User [{defaults['DB_USER']}]: ") or defaults["DB_USER"]
-    credentials["DB_PASSWORD"] = getpass.getpass("Database Password: ")
-    credentials["DB_NAME"] = input(f"Database Name [{defaults['DB_NAME']}]: ") or defaults["DB_NAME"]
-    credentials["JWT_SECRET"] = defaults["JWT_SECRET"]
-    
-    return credentials
-
-def create_env_file(credentials, target_path):
-    """Create a secrets.env file with the provided credentials."""
-    env_content = "\n".join([f"{key}='{value}'" for key, value in credentials.items()])
-    
-    # Ensure the directory exists
-    os.makedirs(os.path.dirname(target_path), exist_ok=True)
-    
-    # Write the env file
-    with open(target_path, "w") as f:
-        f.write(env_content)
-    
-    print(f"✅ Created configuration file at {target_path}")
+from .setup.env_setup import generate_defaults, prompt_for_credentials, create_env_file, DOCKER_COMPOSE_FILE
+from .setup.db_setup import initialize_database
 
 def init():
     print("🔧 Initializing SQLMate project...")
@@ -77,7 +21,13 @@ def init():
     credentials = prompt_for_credentials(defaults)
     create_env_file(credentials, env_file_path)
     
-    print("✅ Project initialized. Run `sqlmate run` to start.")
+    # Validate and initialize the database with the provided credentials
+    db_setup_successful = initialize_database(credentials)
+    
+    if db_setup_successful:
+        print("✅ Project initialized. Run `sqlmate run` to start.")
+    else:
+        print("⚠️ Project initialized with warnings. Database setup had issues.")
 
 def run():
     print("🚀 Starting SQLMate with Docker...")
@@ -112,7 +62,7 @@ def run():
         return
     
 
-    subprocess.run(["docker", "compose", "-f", str(docker_compose_file), "up", "--build"], check=True)
+    subprocess.run(["docker", "compose", "-f", str(DOCKER_COMPOSE_FILE), "up", "--build"], check=True)
 
 def main():
     parser = argparse.ArgumentParser(prog="sqlmate")

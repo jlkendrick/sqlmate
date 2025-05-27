@@ -1,7 +1,9 @@
 from dotenv import load_dotenv
 import os
 
-load_dotenv('src/secrets.env')
+ENV_PATH = os.path.join(os.path.expanduser('~'), '.sqlmate', 'secrets.env')
+
+load_dotenv(ENV_PATH if os.path.exists(ENV_PATH) else 'secrets.env')
 
 # Port
 PORT = int(os.getenv("PORT", 8080))
