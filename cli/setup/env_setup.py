@@ -39,7 +39,7 @@ def prompt_for_credentials(defaults: dict) -> dict:
     credentials["PORT"] = input(f"API Port [{defaults['PORT']}]: ") or defaults["PORT"]
     credentials["DB_HOST"] = input(f"Database Host [{defaults['DB_HOST']}]: ") or defaults["DB_HOST"]
     credentials["DB_USER"] = input(f"Database User [{defaults['DB_USER']}]: ") or defaults["DB_USER"]
-    credentials["DB_PASSWORD"] = getpass.getpass("Database Password: ")
+    credentials["DB_PASSWORD"] = getpass.getpass("Database Password: ") or defaults["DB_PASSWORD"]
     credentials["DB_NAME"] = input(f"Database Name [{defaults['DB_NAME']}]: ") or defaults["DB_NAME"]
     credentials["JWT_SECRET"] = defaults["JWT_SECRET"]
     
