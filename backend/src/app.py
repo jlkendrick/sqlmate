@@ -34,9 +34,9 @@ def register():
     pw_hash = hash_password(password)
 
     try:
-        with get_cursor() as cur:
+        with get_cursor("sqlmate") as cur:
             cur.execute(
-                "INSERT INTO users (username, `pass`, email) VALUES (%s, %s, %s)",
+                "INSERT INTO users (username, password, email) VALUES (%s, %s, %s)",
                 (username, pw_hash, email)
             )
     # If insertion fails due to duplicate username, or other error, return error
@@ -55,8 +55,8 @@ def login():
     if not username or not password:
         return jsonify({"error":"Missing credentials"}), 400
 
-    with get_cursor() as cur:
-        cur.execute("SELECT pass, email FROM users WHERE username = %s",(username,))
+    with get_cursor("sqlmate") as cur:
+        cur.execute("SELECT password, email FROM users WHERE username = %s",(username,))
         row: Any = cur.fetchone()
 
     # If user not found or password does not match, return error
@@ -84,7 +84,7 @@ def me():
 
     # Get the username from the token data
     username = user_or_err
-    with get_cursor() as cur:
+    with get_cursor("sqlmate") as cur:
         cur.execute(
           "SELECT username, email FROM users WHERE username = %s",
           (username,)
@@ -105,7 +105,7 @@ def delete_account():
     if error:
         return jsonify({"error": error}), 401
 
-    with get_cursor() as cur:
+    with get_cursor("sqlmate") as cur:
         try:
             cur.execute("DELETE FROM users WHERE username = %s", (username,))
         except mysql.connector.Error as e:
@@ -140,7 +140,7 @@ def save_table():
     
     # Execute the stored procedure to create the table (this checks if the table already exists as well)
     created_at = get_timestamp()
-    with get_cursor() as cur:
+    with get_cursor("sqlmate") as cur:
         try:
             cur.callproc("save_user_table", [username, table_name, created_at, query])
         except mysql.connector.IntegrityError as e:
@@ -175,7 +175,7 @@ def drop_table():
         return jsonify({"error": "Invalid table name format"}), 400
     
     # Execute the query to delete the entries from the user_tables table, which triggers insertion into tables_to_drop
-    with get_cursor() as cur:
+    with get_cursor("sqlmate") as cur:
         try:
             for table_name in table_names:
                 if not table_name:
@@ -186,7 +186,7 @@ def drop_table():
             return jsonify({"error": "Failed to drop table"}), 500
     
     # Execute the stored procedure to drop the tables that were marked for deletion in the previous step
-    with get_cursor() as cur:
+    with get_cursor("sqlmate") as cur:
         try:
             cur.callproc("process_tables_to_drop")
         except mysql.connector.Error as e:
@@ -204,7 +204,7 @@ def get_tables():
         return jsonify({"error": error}), 401
 
     rows = []
-    with get_cursor() as cur:
+    with get_cursor("sqlmate") as cur:
         try:
             cur.execute("SELECT table_name, created_at FROM user_tables WHERE username = %s", (username,))
             rows: List[Any] = cur.fetchall()
@@ -232,7 +232,7 @@ def get_table_data():
     
     formatted_table_name = f"u_{username}_{table_name}"
     query = f"SELECT * FROM {formatted_table_name};"
-    with get_cursor() as cur:
+    with get_cursor("sqlmate") as cur:
         try:
             cur.execute(query)
             rows: List[Any] = cur.fetchall()
@@ -272,7 +272,7 @@ def update():
         return jsonify({"error_msg": "Invalid query"}), 400
     
     try:
-        with get_cursor() as cursor:
+        with get_cursor("sqlmate") as cursor:
             cursor.execute(query_body)
             result = cursor.rowcount
     except mysql.connector.Error as e:
