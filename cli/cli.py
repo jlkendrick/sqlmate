@@ -43,7 +43,7 @@ def run():
         return
     # Check if Docker Compose is installed
     try:
-        subprocess.run(["docker-compose", "--version"], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        subprocess.run(["docker", "compose", "version"], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     except subprocess.CalledProcessError:
         print("❌ Docker Compose is not installed. Please install Docker Compose and try again.")
         return
@@ -61,7 +61,6 @@ def run():
         print("❌ Configuration file not found. Please run `sqlmate init` first.")
         return
     
-
     subprocess.run(["docker", "compose", "-f", str(DOCKER_COMPOSE_FILE), "up", "--build"], check=True)
 
 def main():
