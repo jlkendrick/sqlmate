@@ -8,11 +8,24 @@ from models.metadata import metadata
 from models.queries.base import BaseQuery
 from models.queries.update import UpdateQuery
 
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import mysql.connector
 from typing import List, Any, Dict
+
+appy = FastAPI()
+appy.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000", "https://sqlmate-ruddy.vercel.app"],
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
+    allow_headers=["*"],
+)
+
+appy.include_router()
 
 app = Flask(__name__)
 CORS(app, origins=["http://localhost:3000", "http://127.0.0.1:3000", "https://sqlmate-ruddy.vercel.app"], supports_credentials=True, methods=["GET", "POST", "PUT", "DELETE"])
