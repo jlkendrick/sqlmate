@@ -1,5 +1,4 @@
-// filepath: /Users/jameskendrick/Code/Courses/cs411/sqlmate/frontend/src/services/queryService.tsx
-import { postVisualQuery } from "@/lib/apiClient";
+import { queryService } from "./api";
 import { TableItem } from "@/components/tablePanel";
 import { Column } from "@/components/tableCustomizationPanel";
 import {
@@ -29,7 +28,7 @@ export async function runVisualQuery(
     orderByPriority
   );
   console.log("Serialized Data:", JSON.stringify(serializedData, null, 2));
-  const response = await postVisualQuery(serializedData);
+  const response = await queryService.runQuery(serializedData);
   return response;
 }
 

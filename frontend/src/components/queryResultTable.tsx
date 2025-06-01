@@ -1,5 +1,5 @@
 import React from "react";
-import type { Table } from "@/types/query";
+import type { Table } from "@/types/common";
 import { AlertCircle } from "lucide-react";
 
 type Props = {

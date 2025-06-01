@@ -3,7 +3,7 @@ from utils.db import get_cursor
 from models.http import StatusResponse
 
 from typing import Any, Optional
-from fastapi import APIRouter, Header
+from fastapi import APIRouter, Header, Response, status
 from pydantic import BaseModel
 import mysql.connector
 
@@ -17,9 +17,9 @@ class RegisterRequest(BaseModel):
 	password: str
 	email: str
 class RegisterResponse(BaseModel):
-    status: StatusResponse
-@router.post('/register')
-def register(req: RegisterRequest) -> RegisterResponse:
+    details: StatusResponse
+@router.post('/register', status_code=status.HTTP_201_CREATED)
+def register(req: RegisterRequest, response: Response) -> RegisterResponse:
     username = req.username
     password = req.password
     email = req.email
@@ -36,26 +36,31 @@ def register(req: RegisterRequest) -> RegisterResponse:
             
     # If insertion fails due to duplicate username, or other error, return error
     except mysql.connector.IntegrityError as _:
+        response.status_code = status.HTTP_409_CONFLICT
         return RegisterResponse(
-			status=StatusResponse(
+			details=StatusResponse(
 				status="error",
-				message="Username already exists"
+				message="Username already exists",
+                code=status.HTTP_409_CONFLICT
 			)
 		)
     
     except mysql.connector.Error as e:
         print(e)
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return RegisterResponse(
-			status=StatusResponse(
+			details=StatusResponse(
 				status="error",
-				message="Failed to register user"
+				message="Failed to register user",
+                code=status.HTTP_500_INTERNAL_SERVER_ERROR
 			)
 		)
     
     return RegisterResponse(
-		status=StatusResponse(
+		details=StatusResponse(
 			status="success",
-			message="User registered successfully"
+			message="User registered successfully",
+            code=status.HTTP_201_CREATED
 		)
 	)
 
@@ -64,18 +69,20 @@ class LoginRequest(BaseModel):
     username: str
     password: str
 class LoginResponse(BaseModel):
-    status: StatusResponse
+    details: StatusResponse
     token: str | None = None
-@router.post('/login')
-def login(req: LoginRequest) -> LoginResponse:
+@router.post('/login', status_code=status.HTTP_200_OK)
+def login(req: LoginRequest, response: Response) -> LoginResponse:
     username = req.username
     password = req.password
 
     if not username or not password:
+        response.status_code = status.HTTP_400_BAD_REQUEST
         return LoginResponse(
-			status=StatusResponse(
+			details=StatusResponse(
 				status="warning",
-				message="Username and password are required"
+				message="Username and password are required",
+                code=status.HTTP_400_BAD_REQUEST
 			)
 		)
 
@@ -85,10 +92,12 @@ def login(req: LoginRequest) -> LoginResponse:
 
     # If user not found or password does not match, return error
     if not row or not check_password(password, row[0]):
+        response.status_code = status.HTTP_401_UNAUTHORIZED
         return LoginResponse(
-			status=StatusResponse(
+			details=StatusResponse(
 				status="error",
-				message="Invalid username or password"
+				message="Invalid username or password",
+                code=status.HTTP_401_UNAUTHORIZED
 			)
 		)
     
@@ -101,28 +110,30 @@ def login(req: LoginRequest) -> LoginResponse:
 
     # Return the token in the response
     return LoginResponse(
-		status=StatusResponse(
+		details=StatusResponse(
 			status="success",
-			message="Login successful"
+			message="Login successful",
+            code=status.HTTP_200_OK
 		),
 		token=token
 	)
 
 # Get user info
 class UserInfoResponse(BaseModel):
-    status: StatusResponse
+    details: StatusResponse
     username: str | None = None
     email: str | None = None
-@router.get('/me')
-def me(authorization: Optional[str] = Header(None)) -> UserInfoResponse:
+@router.get('/me', status_code=status.HTTP_200_OK)
+def me(response: Response, authorization: Optional[str] = Header(None)) -> UserInfoResponse:
     # Check the authentication of the user
-    token = get_token(authorization)
-    user_or_err, error = check_user(token)
+    user_or_err, error = check_user(authorization)
     if error:
+        response.status_code = status.HTTP_401_UNAUTHORIZED
         return UserInfoResponse(
-            status=StatusResponse(
+            details=StatusResponse(
 				status="error",
-				message=error
+				message=error,
+                code=status.HTTP_401_UNAUTHORIZED
 			),
             username=None,
 			email=None
@@ -138,19 +149,22 @@ def me(authorization: Optional[str] = Header(None)) -> UserInfoResponse:
         row: Any = cur.fetchone()
 
     if not row:
+        response.status_code = status.HTTP_404_NOT_FOUND
         return UserInfoResponse(
-            status=StatusResponse(
+            details=StatusResponse(
 				status="error",
-				message="User not found"
+				message="User not found",
+                code=status.HTTP_404_NOT_FOUND
 			),
 			username=None,
 			email=None
 		)
 
     return UserInfoResponse(
-		status=StatusResponse(
+		details=StatusResponse(
 			status="success",
-			message="User info retrieved successfully"
+			message="User info retrieved successfully",
+            code=status.HTTP_200_OK
 		),
 		username=row[0],
 		email=row[1]
@@ -158,15 +172,15 @@ def me(authorization: Optional[str] = Header(None)) -> UserInfoResponse:
 
 # User account deletion
 class DeleteAccountResponse(BaseModel):
-    status: StatusResponse
-@router.get('/delete_user')
+    details: StatusResponse
+@router.delete('/delete_user')
 def delete_account(authorization: Optional[str] = Header(None)) -> DeleteAccountResponse:
     # Check the authentication of the user
     token = get_token(authorization)
     username, error = check_user(token)
     if error:
         return DeleteAccountResponse(
-			status=StatusResponse(
+			details=StatusResponse(
 				status="error",
 				message=error
 			)
@@ -178,7 +192,7 @@ def delete_account(authorization: Optional[str] = Header(None)) -> DeleteAccount
         except mysql.connector.Error as e:
             print(e)
             return DeleteAccountResponse(
-				status=StatusResponse(
+				details=StatusResponse(
 					status="error",
 					message="Failed to delete account"
 				)
@@ -191,14 +205,14 @@ def delete_account(authorization: Optional[str] = Header(None)) -> DeleteAccount
         except mysql.connector.Error as e:
             print(e)
             return DeleteAccountResponse(
-				status=StatusResponse(
+				details=StatusResponse(
 					status="error",
 					message="Failed to process tables for deletion"
 				)
 			)
     
     return DeleteAccountResponse(
-		status=StatusResponse(
+		details=StatusResponse(
 			status="success",
 			message="Account deleted successfully"
 		)

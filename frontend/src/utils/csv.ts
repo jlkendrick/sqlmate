@@ -1,5 +1,5 @@
 // filepath: /Users/jameskendrick/Code/Courses/cs411/sp25-cs411-team006-0.1xDevelopers/frontend/src/utils/csv.ts
-import { Table } from "@/types/query";
+import { Table } from "@/types/common";
 
 /**
  * Converts table data to CSV format

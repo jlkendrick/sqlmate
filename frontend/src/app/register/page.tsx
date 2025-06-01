@@ -4,13 +4,13 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/contexts/AuthContext";
 import Link from "next/link";
 import { Header } from "@/components/header";
+import { authService } from "@/services/api";
+import { toast } from "@/components/ui/use-toast";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { register } = useAuth();
   const [form, setForm] = useState({ username: "", email: "", password: "" });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -21,11 +21,34 @@ export default function RegisterPage() {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+
     try {
-      await register(form.username, form.password, form.email);
+      const response = await authService.register(
+        form.username,
+        form.password,
+        form.email
+      );
+      console.log("Server response:", response);
+
+      // Show success toast
+      toast({
+        title: "Registration successful!",
+        description: "You can now log in with your credentials.",
+        variant: "default",
+      });
+
       router.push("/login");
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : String(err));
+    } catch (err: any) {
+      console.error("Registration error:", err);
+
+      // Show error toast
+      toast({
+        title: "Registration failed",
+        description: err.message || "Please try again.",
+        variant: "destructive",
+      });
+
+      setError(err.message || "Registration failed. Please try again.");
     } finally {
       setLoading(false);
     }

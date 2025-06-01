@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { getCurrentUser, postLogin, postRegister } from "@/lib/apiClient";
+import { authService } from "@/services/api";
 
 interface User {
   username: string;
@@ -13,6 +13,8 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   token: string | null;
+  setToken: (token: string | null) => void;
+  setUser: (user: User | null) => void;
   login: (username: string, password: string) => Promise<void>;
   register: (
     username: string,
@@ -37,9 +39,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (storedToken) {
       setToken(storedToken);
       // Fetch user data with the token
-      getCurrentUser()
+      authService.getCurrentUser()
         .then((userData) => {
-          setUser(userData);
+          setUser({ username: userData.username!!, email: userData.email!! });
         })
         .catch(() => {
           // If token is invalid, clear it
@@ -56,13 +58,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (username: string, password: string) => {
     try {
-      const response = await postLogin(username, password);
+      const response = await login(username, password);
       const { token } = response;
       localStorage.setItem("token", token);
       setToken(token);
 
       // Fetch user data after successful login
-      const userData = await getCurrentUser();
+      const userData = await AuthApiService.getCurrentUser();
       setUser(userData);
       return;
     } catch (error) {
@@ -75,9 +77,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     password: string,
     email: string
   ) => {
-    await postRegister(username, password, email);
-    // After registration, redirect to login
-    router.push("/login");
+    const response = await authService.register(username, password, email);
   };
 
   const logout = () => {
@@ -91,6 +91,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     user,
     loading,
     token,
+    setToken,
+    setUser,
     login,
     register,
     logout,

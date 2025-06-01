@@ -1,10 +1,14 @@
 import type {
   QueryResponse,
   SaveTableRequest,
-  VisualQueryRequest,
-  TableUpdateRequest,
-  TableUpdateResponse,
-} from "@/types/query";
+  SaveTableResponse,
+  UpdateTableRequest,
+  UpdateTableResponse,
+  QueryRequest,
+  StatusResponse,
+  Table,
+  DeleteTableResponse,
+} from "@/types/common";
 
 const COMMON_OPTS = {
   headers: { "Content-Type": "application/json" },
@@ -35,7 +39,9 @@ export async function deleteUser() {
   return data;
 }
 
-export async function getTableData(tableName: string) {
+export async function getTableData(
+  tableName: string
+): Promise<Table | undefined> {
   const response = await fetch(
     `/users/get_table_data?table_name=${encodeURIComponent(tableName)}`,
     {
@@ -53,7 +59,9 @@ export async function getTableData(tableName: string) {
   return data.table;
 }
 
-export async function deleteUserTables(tableNames: string[]) {
+export async function deleteUserTables(
+  tableNames: string[]
+): Promise<DeleteTableResponse> {
   const response = await fetch("/users/delete_table", {
     method: "POST",
     headers: getAuthHeaders(),
@@ -88,7 +96,9 @@ export async function getTables() {
   return data;
 }
 
-export async function postUserTable(saveTableData: SaveTableRequest) {
+export async function postUserTable(
+  saveTableData: SaveTableRequest
+): Promise<SaveTableResponse> {
   const response = await fetch("/users/save_table", {
     method: "POST",
     headers: getAuthHeaders(),
@@ -102,18 +112,18 @@ export async function postUserTable(saveTableData: SaveTableRequest) {
     const errorData = await response.json();
     throw new Error(errorData.error_msg || "Table save failed");
   }
-  const data: QueryResponse = await response.json();
+  const data: SaveTableResponse = await response.json();
   return data;
 }
 
 export async function postVisualQuery(
-  visualQueryData: VisualQueryRequest
-) {
+  queryData: QueryRequest
+): Promise<QueryResponse> {
   const response = await fetch("/query", {
     method: "POST",
     headers: getAuthHeaders(),
     credentials: "include",
-    body: JSON.stringify(visualQueryData),
+    body: JSON.stringify(queryData),
   });
   if (!response.ok) {
     const errorData = await response.json();
@@ -124,8 +134,8 @@ export async function postVisualQuery(
 }
 
 export async function postTableUpdate(
-  updateData: TableUpdateRequest
-): Promise<TableUpdateResponse> {
+  updateData: UpdateTableRequest
+): Promise<UpdateTableResponse> {
   const response = await fetch("/users/update_table", {
     method: "POST",
     headers: getAuthHeaders(),
@@ -138,7 +148,7 @@ export async function postTableUpdate(
     throw new Error(errorData.error_msg || "Table update failed");
   }
 
-  const data: TableUpdateResponse = await response.json();
+  const data: UpdateTableResponse = await response.json();
   return data;
 }
 
@@ -176,7 +186,9 @@ export async function getCurrentUser() {
 }
 
 // Function to get table data for CSV export
-export async function getTableDataForExport(tableName: string) {
+export async function getTableDataForExport(
+  tableName: string
+): Promise<Table | undefined> {
   const response = await fetch(
     `/users/get_table_data?table_name=${encodeURIComponent(tableName)}`,
     {

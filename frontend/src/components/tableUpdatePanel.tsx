@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PlusIcon, Trash2Icon } from "lucide-react";
-import { TableUpdateAttribute, TableUpdateConstraint } from "@/types/query";
+import { TableUpdateAttribute, TableUpdateConstraint } from "@/types/common";
 
 interface TableUpdatePanelProps {
   columns: { name: string; type: string }[];

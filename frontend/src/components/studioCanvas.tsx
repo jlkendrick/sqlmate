@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { runVisualQuery } from "@/services/queryService";
-import { Table } from "@/types/query";
+import { Table } from "@/types/common";
 import { useDroppable } from "@dnd-kit/core";
 import { TableCustomizationPanel, Column } from "./tableCustomizationPanel";
 import { TableItem } from "./tablePanel";
@@ -32,9 +32,7 @@ export function StudioCanvas({
 }: StudioCanvasProps) {
   const [anyTableHasGroupBy, setAnyTableHasGroupBy] = useState(false);
   // Removing unused state variable
-  const [_, setTablesWithGroupBy] = useState<
-    Record<string, boolean>
-  >({});
+  const [_, setTablesWithGroupBy] = useState<Record<string, boolean>>({});
   const [queryLimit, setQueryLimit] = useState<number | undefined>(undefined);
   const [orderByPriority, setOrderByPriority] = useState<OrderByItem[]>([]);
 
@@ -193,7 +191,7 @@ export function StudioCanvas({
       const errorMessage =
         (error as any).error_msg || // From the API's error_msg field
         (error instanceof Error ? error.message : null) || // From JS Error object
-        "An error occurred while executing the query"
+        "An error occurred while executing the query";
       setConsoleOutput({
         columns: [],
         rows: [],

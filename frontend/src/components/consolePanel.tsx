@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { QueryResultTable } from "@/components/queryResultTable";
-import type { Table, SaveTableRequest } from "@/types/query";
+import type { Table, SaveTableRequest } from "@/types/common";
 import { useRouter } from "next/navigation";
 import {
   Dialog,

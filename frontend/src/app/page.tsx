@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import type { Table } from "@/types/query";
+import type { Table } from "@/types/common";
 import { Header } from "@/components/header";
 import { TablePanel } from "@/components/tablePanel";
 import { StudioCanvas } from "@/components/studioCanvas";

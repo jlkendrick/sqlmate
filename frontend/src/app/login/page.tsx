@@ -4,13 +4,16 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/contexts/AuthContext";
 import Link from "next/link";
 import { Header } from "@/components/header";
+import { authService } from "@/services/api";
+import { toast } from "@/components/ui/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { set } from "date-fns";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { setToken, setUser } = useAuth();
   const [form, setForm] = useState({ username: "", password: "" });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -22,11 +25,40 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     setError(null);
+
     try {
-      await login(form.username, form.password);
+      const response = await authService.login(form.username, form.password);
+      const token = response.token!!;
+      console.log("Server response:", response);
+
+      localStorage.setItem("token", token);
+      setToken(token);
+      
+      const userInfo = await authService.getCurrentUser();
+      setUser({
+        username: userInfo.username!!,
+        email: userInfo.email!!,
+      });
+      
+      toast({
+        title: "Login successful!",
+        description: "Welcome back! Redirecting to the home screen.",
+        variant: "default",
+      });
+
       router.push("/");
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : String(err));
+      
+    } catch (err: any) {
+      console.error("Login error:", err);
+
+      // Show error toast
+      toast({
+        title: "Login failed",
+        description: err.message || "Please check your credentials.",
+        variant: "destructive",
+      });
+
+      setError(err.message || "Login failed. Please try again.");
     } finally {
       setLoading(false);
     }

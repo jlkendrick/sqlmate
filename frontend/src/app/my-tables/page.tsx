@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { TrashIcon, RefreshCw, PencilIcon, Download } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { Header } from "@/components/header";
-import { DeleteTableResponse } from "@/types/query";
+import { DeleteTableResponse } from "@/types/common";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
