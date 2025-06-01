@@ -17,6 +17,13 @@ def create_access_token(data: Dict) -> str:
 		raise ValueError("SECRET_KEY cannot be None")
 	return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
+def get_token(authorization: str | None) -> str:
+	if not authorization:
+		return ""
+	if not authorization.startswith("Bearer "):
+		return ""
+	return authorization.split(" ")[1]
+
 # Return (username, error_msg)
 def check_user(token: str | None) -> Tuple[str, str]:
 	if not token:

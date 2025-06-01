@@ -1,11 +1,12 @@
 from ..metadata import metadata
 from typing import List
+from ..http import UpdateQueryParams
 
 
 # Class that will be used to initialize a TableQuery object
 # which we will use to generate the query
 class BaseQuery:
-    def __init__(self, input: dict, username: str = "") -> None:
+    def __init__(self, input: UpdateQueryParams, username: str = "") -> None:
         self.table_name: str = self.format_table_name(username, input.get("table", ""))
         if not input.get("attributes"):
             raise ValueError(f"No attribues selected for {self.table_name} table")

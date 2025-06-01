@@ -1,6 +1,13 @@
-def query_output_to_dict(query_output: list[tuple], column_names: list[str], query_body: str, num_tables: int) -> dict:
+from ..models.http.response_commons import Table
+
+def query_output_to_table(query_output: list[tuple], column_names: list[str], query_body: str, num_tables: int) -> Table:
 	if not query_output:
-		return {}
+		return Table(
+			query=query_body,
+			created_at=None,  # This can be set to None as we don't have this information in the query output yet
+			columns=column_names,
+			rows=[]
+		)
 	
 	# If the query is a single table query, we can remove the table name from the column names
 	if num_tables == 1:
@@ -14,18 +21,16 @@ def query_output_to_dict(query_output: list[tuple], column_names: list[str], que
 				cleaned_column_names.append(col_name)
 		column_names = cleaned_column_names
 
-	# Convert each row to a dictionary
-	json_output = [
-		{column_names[i]: row[i] for i in range(len(column_names))}
-		for row in query_output
+	# Convert each row to a list
+	rows = [
+		[val for val in row] for row in query_output
 	]
 
 	# This is what the frontend expects to be able to deserialize into the table
-	response = {
-		'table': {
-			'columns': column_names, 
-			'rows': json_output
-		},
-		'query': query_body
-	}
+	response: Table = Table(
+		query=query_body,
+		created_at=None,  # This can be set to None as we don't have this information in the query output yet
+		columns=column_names,
+		rows=rows
+	)
 	return response

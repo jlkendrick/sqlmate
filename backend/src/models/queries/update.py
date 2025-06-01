@@ -1,12 +1,13 @@
 from ..metadata import metadata
 from .base import BaseQuery
+from ..http import UpdateQueryParams
 from typing import List, Any
 
 # Update query class
 class UpdateQuery(BaseQuery):
-    def __init__(self, input: dict, username: str) -> None:
+    def __init__(self, input: UpdateQueryParams, username: str) -> None:
         super().__init__(input, username)
-        self.updates: List[Update] = [Update(details, self.table_name) for details in input.get("updates", [])]
+        self.updates: List[Update] = [Update(details, self.table_name) for details in input.updates or []]
         
     def get_UPDATE_clause(self) -> str:
         return self.table_name

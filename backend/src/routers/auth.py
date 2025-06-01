@@ -1,9 +1,9 @@
-from typing import Any
-from utils.auth import create_access_token, check_user, hash_password, check_password
+from utils.auth import create_access_token, check_user, hash_password, check_password, get_token
 from utils.db import get_cursor
-from models.http.response import StatusResponse
+from models.http import StatusResponse
 
-from fastapi import APIRouter, Request
+from typing import Any, Optional
+from fastapi import APIRouter, Header
 from pydantic import BaseModel
 import mysql.connector
 
@@ -114,9 +114,9 @@ class UserInfoResponse(BaseModel):
     username: str | None = None
     email: str | None = None
 @router.get('/me')
-def me(request: Request):
+def me(authorization: Optional[str] = Header(None)) -> UserInfoResponse:
     # Check the authentication of the user
-    token = request.headers.get("Authorization")
+    token = get_token(authorization)
     user_or_err, error = check_user(token)
     if error:
         return UserInfoResponse(
@@ -160,9 +160,9 @@ def me(request: Request):
 class DeleteAccountResponse(BaseModel):
     status: StatusResponse
 @router.get('/delete_user')
-def delete_account(request: Request):
+def delete_account(authorization: Optional[str] = Header(None)) -> DeleteAccountResponse:
     # Check the authentication of the user
-    token = request.headers.get("Authorization")
+    token = get_token(authorization)
     username, error = check_user(token)
     if error:
         return DeleteAccountResponse(
