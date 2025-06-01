@@ -20,7 +20,7 @@ class SaveTableRequest(BaseModel):
 	query: str
 class SaveTableResponse(StatusResponse):
 	status: StatusResponse
-@router.route("/users/save_table", methods=["POST"])
+@router.route("/save_table", methods=["POST"])
 def save_table(req: SaveTableRequest, authorization: Optional[str] = Header(None)):
 	# Check the authentication of the user
 	token = authorization
@@ -83,7 +83,7 @@ class DeleteTableRequest(BaseModel):
 class DeleteTableResponse(BaseModel):
 	status: StatusResponse
 	deleted_tables: list[str] | None = None
-@router.route("/users/delete_table", methods=["POST"])
+@router.route("/delete_table", methods=["POST"])
 def drop_table(req: DeleteTableRequest, authorization: Optional[str] = Header(None)):
 	# Check the authentication of the user
 	token = get_token(authorization)
@@ -164,7 +164,7 @@ class GetTablesResponse(BaseModel):
 	status: StatusResponse
 class GetTablesReponse(GetTablesResponse):
 	tables: List[Dict[str, str]] | None = None
-@router.route("/users/get_tables", methods=["GET"])
+@router.route("/get_tables", methods=["GET"])
 def get_tables(authorization: Optional[str] = Header(None)) -> GetTablesReponse:
 	# Check the authentication of the user
 	token = get_token(authorization)
@@ -212,7 +212,7 @@ class GetTableDataRequest(BaseModel):
 class GetTableDataResponse(BaseModel):
 	status: StatusResponse
 	table: Table | None = None
-@router.route("/users/get_table_data", methods=["GET"])
+@router.route("/get_table_data", methods=["GET"])
 def get_table_data(req: GetTableDataRequest, authorization: Optional[str] = Header(None)) -> GetTableDataResponse:
 	# Check the authentication of the user
 	token = get_token(authorization)
@@ -279,7 +279,7 @@ class UpdateTableRequest(BaseModel):
 class UpdateTableResponse(BaseModel):
 	status: StatusResponse
 	rows_affected: int | None = None
-@router.route("/users/update_table", methods=["POST"])
+@router.route("/update_table", methods=["POST"])
 def update(req: UpdateTableRequest, authorization: Optional[str] = Header(None)):
 	# Check the authentication of the user
 	token = get_token(authorization)
