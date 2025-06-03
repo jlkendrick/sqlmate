@@ -15,6 +15,7 @@ export interface Table {
   created_at?: string;
   columns: string[];
   rows: any[];
+  error?: string;
 }
 
 export interface QueryResponse {

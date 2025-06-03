@@ -1,5 +1,5 @@
 import { BaseApiClient } from "./baseClient";
-import { StatusResponse } from "@/types/common";
+import { StatusResponse } from "@/types/http";
 
 interface RegisterRequest {
   username: string;
@@ -17,8 +17,8 @@ interface LoginRequest {
 }
 
 interface LoginResponse {
-	details: StatusResponse;
-	token: string | null;
+  details: StatusResponse;
+  token: string | null;
 }
 
 interface UserInfoResponse {
@@ -28,7 +28,7 @@ interface UserInfoResponse {
 }
 
 interface DeleteUserResponse {
-	details: StatusResponse;
+  details: StatusResponse;
 }
 
 export class AuthApiService extends BaseApiClient {

@@ -1,5 +1,6 @@
 CREATE_SAVE_USER_TABLE_PROC = """
-CREATE PROCEDURE save_user_table (
+CREATE PROCEDURE {db_name}.save_user_table (
+	IN p_user_id INT,
 	IN p_username VARCHAR(50),
 	IN p_table_name VARCHAR(100),
 	IN p_created_at DATETIME,
@@ -8,15 +9,15 @@ CREATE PROCEDURE save_user_table (
 BEGIN
 	DECLARE full_table_name VARCHAR(150);
 	
-	SELECT COUNT(*) INTO @exists FROM user_tables WHERE username = p_username AND table_name = p_table_name;
+	SELECT COUNT(*) INTO @exists FROM sqlmate.user_tables WHERE user_id = p_user_id AND table_name = p_table_name;
 	IF @exists > 0 THEN
 	SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Table already exists';
 	END IF;
 	
-	SET full_table_name = CONCAT('u_', p_username, '_', p_table_name);
+	SET full_table_name = CONCAT('sqlmate.u_', p_username, '_', p_table_name);
 
 	-- Prevent SQL injection
-	IF full_table_name REGEXP '^[a-zA-Z_][a-zA-Z0-9_]*$' THEN
+	IF full_table_name REGEXP '^[a-zA-Z0-9_.]+$' THEN
 		-- Dynamically prepare the CREATE TABLE query
 		SET @create_sql = CONCAT('CREATE TABLE ', full_table_name, ' AS ', p_query);
 		PREPARE stmt FROM @create_sql;
@@ -24,8 +25,8 @@ BEGIN
 		DEALLOCATE PREPARE stmt;
 
 		-- Insert mapping into user_tables
-		INSERT INTO user_tables (username, table_name, created_at) 
-		VALUES (p_username, p_table_name, p_created_at);
+		INSERT INTO sqlmate.user_tables (user_id, table_name, created_at) 
+		VALUES (p_user_id, p_table_name, p_created_at);
 	ELSE
 		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Invalid table name format';
 	END IF;
@@ -33,7 +34,7 @@ END
 """
 
 CREATE_PROCESS_TABLE_TO_DROP_PROC = """
-CREATE PROCEDURE process_tables_to_drop()
+CREATE PROCEDURE sqlmate.process_tables_to_drop()
 BEGIN
     DECLARE v_username VARCHAR(50);
     DECLARE v_table_name VARCHAR(100);

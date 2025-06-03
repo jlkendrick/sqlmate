@@ -9,7 +9,7 @@ import {
   QueryAttribute,
   QueryConstraint,
   QueryAggregation,
-} from "@/types/common";
+} from "@/types/http";
 
 interface OrderByPriorityItem {
   tableId: string;

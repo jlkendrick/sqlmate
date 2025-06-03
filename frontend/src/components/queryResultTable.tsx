@@ -1,5 +1,5 @@
 import React from "react";
-import type { Table } from "@/types/common";
+import type { Table } from "@/types/http";
 import { AlertCircle } from "lucide-react";
 
 type Props = {
@@ -40,9 +40,9 @@ export const QueryResultTable: React.FC<Props> = ({ data }) => {
         <tbody>
           {rows.map((row, i) => (
             <tr key={i} className="hover:bg-gray-50">
-              {columns.map((col) => (
-                <td key={col} className="px-4 py-2 border-b">
-                  {String(row[col])}
+              {row.map((value: any, j: number) => (
+                <td key={`${i}-${j}`} className="px-4 py-2 border-b">
+                  {String(value)}
                 </td>
               ))}
             </tr>

@@ -5,7 +5,7 @@ from models.http import StatusResponse, Table, QueryParams
 from models.queries.base import BaseQuery
 
 from typing import Any, Dict, List, Optional
-from fastapi import APIRouter, Header
+from fastapi import APIRouter
 from pydantic import BaseModel
 import mysql.connector
 
@@ -19,10 +19,10 @@ class QueryRequest(BaseModel):
 class QueryResponse(BaseModel):
 	status: StatusResponse
 	table: Table | None = None
-@router.route("/", methods=["POST"])
-def run_query(req: QueryRequest, authorization: Optional[str] = Header(None)):
-	# with open("logs/input_log.txt", "w") as f:
-	#     f.write(json.dumps(req, indent=4))
+@router.post("/")
+def run_query(req: QueryRequest):
+	with open("../logs/input_log.txt", "w") as f:
+		f.write(req.model_dump_json(indent=4))
 
 	# Validate the input data
 	try:

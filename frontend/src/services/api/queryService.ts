@@ -4,7 +4,7 @@ import {
   QueryResponse,
   UpdateTableRequest,
   UpdateTableResponse,
-} from "@/types/common";
+} from "@/types/http";
 
 export class QueryApiService extends BaseApiClient {
   constructor() {
@@ -15,7 +15,7 @@ export class QueryApiService extends BaseApiClient {
    * Run a visual query (SELECT)
    */
   async runQuery(queryData: QueryRequest): Promise<QueryResponse> {
-    return this.post<QueryResponse, QueryRequest>("/query", queryData);
+    return this.post<QueryRequest, QueryResponse>("/query", queryData);
   }
 
   /**
@@ -24,7 +24,7 @@ export class QueryApiService extends BaseApiClient {
   async updateTable(
     updateData: UpdateTableRequest
   ): Promise<UpdateTableResponse> {
-    return this.post<UpdateTableResponse, UpdateTableRequest>(
+    return this.post<UpdateTableRequest, UpdateTableResponse>(
       "/users/update_table",
       updateData
     );

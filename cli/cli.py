@@ -29,6 +29,24 @@ def init():
     else:
         print("⚠️ Project initialized with warnings. Database setup had issues.")
 
+def cleanup():
+    print("🧹 Cleaning up SQLMate project...")
+    
+    # Read credentials from the env file
+    env_file_path = os.path.join(
+        os.path.expanduser('~'),
+        '.sqlmate',
+        'secrets.env'
+    )
+    if os.path.exists(env_file_path):
+        with open(env_file_path, 'r') as f:
+            lines = f.readlines()
+        
+        
+    
+    # Optionally, you can add more cleanup tasks here
+
+
 def run():
     print("🚀 Starting SQLMate with Docker...")
 

@@ -9,7 +9,6 @@ import { Header } from "@/components/header";
 import { authService } from "@/services/api";
 import { toast } from "@/components/ui/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
-import { set } from "date-fns";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -29,7 +28,6 @@ export default function LoginPage() {
     try {
       const response = await authService.login(form.username, form.password);
       const token = response.token!!;
-      console.log("Server response:", response);
 
       localStorage.setItem("token", token);
       setToken(token);

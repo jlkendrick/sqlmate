@@ -11,11 +11,12 @@ import { Button } from "@/components/ui/button";
 import { TrashIcon, RefreshCw, PencilIcon, Download } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { Header } from "@/components/header";
-import { DeleteTableResponse } from "@/types/common";
+import { DeleteTableResponse } from "@/types/http";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 import { downloadTableAsCSV } from "@/utils/csv";
+import { tableService } from "@/services/api";
 
 interface UserTable {
   table_name: string;
@@ -35,13 +36,22 @@ export default function MyTablesPage() {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await getTables();
-      setTables(data);
+      const data = await tableService.getTables();
+      setTables(data.tables || []);
       // Clear selections when refreshing
       setSelectedTables([]);
-    } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : String(err);
-      setError(errorMessage || "Failed to fetch tables");
+
+    } catch (err: any) {
+
+      console.log(err);
+
+      toast({
+        title: "Error fetching tables",
+        description: err.message || "Failed to load tables",
+        variant: "destructive",
+      });
+
+      setError(err.message || "Failed to load tables");
     } finally {
       setIsLoading(false);
     }

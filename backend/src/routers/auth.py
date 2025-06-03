@@ -71,7 +71,7 @@ class LoginRequest(BaseModel):
 class LoginResponse(BaseModel):
     details: StatusResponse
     token: str | None = None
-@router.post('/login', status_code=status.HTTP_200_OK)
+@router.post('/login', response_model=LoginResponse, status_code=status.HTTP_200_OK)
 def login(req: LoginRequest, response: Response) -> LoginResponse:
     username = req.username
     password = req.password
@@ -87,11 +87,11 @@ def login(req: LoginRequest, response: Response) -> LoginResponse:
 		)
 
     with get_cursor("sqlmate") as cur:
-        cur.execute("SELECT password, email FROM users WHERE username = %s",(username,))
+        cur.execute("SELECT id, password, email FROM users WHERE username = %s",(username,))
         row: Any = cur.fetchone()
 
     # If user not found or password does not match, return error
-    if not row or not check_password(password, row[0]):
+    if not row or not check_password(password, row[1]):
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return LoginResponse(
 			details=StatusResponse(
@@ -103,8 +103,9 @@ def login(req: LoginRequest, response: Response) -> LoginResponse:
     
     # Generate JWT token with username
     payload = {
-      "user": username,
-      "email": row[1]
+        "id": row[0],
+        "username": username,
+        "email": row[2]
     }
     token = create_access_token(payload)
 
@@ -123,10 +124,10 @@ class UserInfoResponse(BaseModel):
     details: StatusResponse
     username: str | None = None
     email: str | None = None
-@router.get('/me', status_code=status.HTTP_200_OK)
+@router.get('/me', response_model=UserInfoResponse, status_code=status.HTTP_200_OK)
 def me(response: Response, authorization: Optional[str] = Header(None)) -> UserInfoResponse:
     # Check the authentication of the user
-    user_or_err, error = check_user(authorization)
+    user_id, username, error = check_user(authorization)
     if error:
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return UserInfoResponse(
@@ -140,11 +141,10 @@ def me(response: Response, authorization: Optional[str] = Header(None)) -> UserI
 		)
 
     # Get the username from the token data
-    username = user_or_err
     with get_cursor("sqlmate") as cur:
         cur.execute(
-          "SELECT username, email FROM users WHERE username = %s",
-          (username,)
+          "SELECT username, email FROM users WHERE id = %s",
+          (user_id,)
         )
         row: Any = cur.fetchone()
 
@@ -177,7 +177,7 @@ class DeleteAccountResponse(BaseModel):
 def delete_account(authorization: Optional[str] = Header(None)) -> DeleteAccountResponse:
     # Check the authentication of the user
     token = get_token(authorization)
-    username, error = check_user(token)
+    user_id, username, error = check_user(token)
     if error:
         return DeleteAccountResponse(
 			details=StatusResponse(

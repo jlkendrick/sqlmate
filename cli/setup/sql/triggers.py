@@ -1,5 +1,5 @@
 CREATE_BEFORE_DELETE_ON_USER_TABLES_TRIG = """
-CREATE TRIGGER before_delete_user_tables
+CREATE TRIGGER sqlmate.before_delete_user_tables
 BEFORE DELETE ON user_tables
 FOR EACH ROW
 BEGIN

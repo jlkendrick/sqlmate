@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { QueryResultTable } from "@/components/queryResultTable";
-import type { Table, SaveTableRequest } from "@/types/common";
+import type { Table, SaveTableRequest } from "@/types/http";
 import { useRouter } from "next/navigation";
 import {
   Dialog,
@@ -15,6 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { AlertCircle, SaveIcon } from "lucide-react";
 import { postUserTable } from "@/lib/apiClient";
+import { toast } from "./ui/use-toast";
 
 export function ConsolePanel({
   consoleOutput,
@@ -66,22 +67,18 @@ export function ConsolePanel({
       setTimeout(() => {
         setShowSaveDialog(false);
         setSaveSuccess(null);
-      }, 1500);
-    } catch (error: unknown) {
-      // Handle auth errors - redirect to login if not authenticated
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
+      }, 800);
+    } catch (error: any) {
 
-      if (
-        errorMessage.includes("401") ||
-        errorMessage.includes("unauthorized")
-      ) {
-        router.push("/login");
-        return;
-      }
+      toast({
+        title: "Save Failed",
+        description: error.message || "Failed to save table",
+        variant: "destructive",
+      });
+      console.error("Error saving table:", error);
 
       // Set error message for other errors
-      setSaveError(errorMessage || "Failed to save table");
+      setSaveError(error.message || "Failed to save table");
     } finally {
       setIsSaving(false);
     }

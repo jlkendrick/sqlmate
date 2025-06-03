@@ -54,6 +54,7 @@ export class BaseApiClient {
       credentials: "include",
       body: JSON.stringify(data),
     });
+
 	
     return this.handleResponse<U>(response);
   }
@@ -79,7 +80,7 @@ export class BaseApiClient {
   // Common response handler with proper error handling
   protected async handleResponse<T>(response: Response): Promise<T> {
     if (!response.ok) {
-      const errorData = await response.json();
+      const errorData = await response.json().catch(() => null);
       if (!errorData || !errorData.details || !errorData.details.message) {
         throw new Error("Unknown error"); // Unknown error
       } else {

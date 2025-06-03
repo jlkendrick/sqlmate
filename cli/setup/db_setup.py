@@ -20,12 +20,15 @@ from .sql.procedures import (
     CREATE_PROCESS_TABLE_TO_DROP_PROC
 )
 from typing import Optional
-import time
 import mysql.connector
 from mysql.connector.abstracts import MySQLConnectionAbstract
 from mysql.connector.pooling import PooledMySQLConnection
+import time
 
-def connect_with_retry(credentials: dict, max_retries: int=5, delay: int=2) -> Optional[MySQLConnectionAbstract | PooledMySQLConnection]:
+def connect_with_retry(credentials: dict,
+        max_retries: int=5,
+        delay: int=2)  \
+    -> Optional[MySQLConnectionAbstract | PooledMySQLConnection]:
     """
     Attempt to connect to the MySQL server with retries.
     
@@ -40,7 +43,7 @@ def connect_with_retry(credentials: dict, max_retries: int=5, delay: int=2) -> O
     for attempt in range(max_retries):
         try:
             print(f"Attempting to connect to database (attempt {attempt + 1}/{max_retries})...")
-            temp_connection = mysql.connector.connect(
+            connection = mysql.connector.connect(
                 host=credentials["DB_HOST"],
                 user=credentials["DB_USER"],
                 password=credentials["DB_PASSWORD"]
@@ -48,27 +51,19 @@ def connect_with_retry(credentials: dict, max_retries: int=5, delay: int=2) -> O
             print("✅ Database server connection successful!")
 
             # Check if the database exists
-            cursor = temp_connection.cursor()
+            cursor = connection.cursor()
             cursor.execute(f"SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '{credentials['DB_NAME']}'")
             if not cursor.fetchone():
                 print(f"❌ Database '{credentials['DB_NAME']}' does not exist. Please create it first.")
-                temp_connection.close()
+                connection.close()
                 return None
             print(f"✅ Database '{credentials['DB_NAME']}' found.")
 
             # Create the 'sqlmate' database if it doesn't exist
+            cursor = connection.cursor()
             cursor.execute(CREATE_SQLMATE_DATABASE)
             cursor.close()
-            temp_connection.commit()
-            temp_connection.close()
-
-            # Create a new connection to the 'sqlmate' database
-            connection = mysql.connector.connect(
-                host=credentials["DB_HOST"],
-                user=credentials["DB_USER"],
-                password=credentials["DB_PASSWORD"],
-                database="sqlmate"
-            )
+            connection.commit()
 
             return connection
         
@@ -116,7 +111,7 @@ def create_tables(connection: MySQLConnectionAbstract | PooledMySQLConnection) -
         print("Make sure you have the necessary permissions to create databases and tables in your DBMS.")
         return False
     
-def create_triggers_and_procedures(connection: MySQLConnectionAbstract | PooledMySQLConnection) -> bool:
+def create_triggers_and_procedures(connection: MySQLConnectionAbstract | PooledMySQLConnection, db_name: str) -> bool:
     """
     Create necessary triggers and stored procedures for SQLMate.
     
@@ -132,7 +127,9 @@ def create_triggers_and_procedures(connection: MySQLConnectionAbstract | PooledM
         print("🔧 Creating triggers and stored procedures...")
         queries = [
             CREATE_BEFORE_DELETE_ON_USER_TABLES_TRIG,
-            CREATE_SAVE_USER_TABLE_PROC,
+            CREATE_SAVE_USER_TABLE_PROC.format(
+                db_name=db_name
+            ),
             CREATE_PROCESS_TABLE_TO_DROP_PROC
         ]
 
@@ -173,10 +170,11 @@ def initialize_database(credentials: dict) -> bool:
         return False
     
     # Create triggers and procedures
-    if not create_triggers_and_procedures(connection):
+    if not create_triggers_and_procedures(connection, credentials["DB_NAME"]):
         connection.close()
         return False
     
     connection.close()
+    
     print("✅ Database initialization completed successfully")
     return True

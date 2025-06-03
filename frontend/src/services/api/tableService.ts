@@ -5,7 +5,7 @@ import {
   SaveTableResponse,
   DeleteTableResponse,
   QueryResponse,
-} from "@/types/common";
+} from "@/types/http";
 
 interface UserTable {
   table_name: string;
@@ -13,7 +13,7 @@ interface UserTable {
 }
 
 interface GetTablesResponse {
-  status: {
+  details: {
     status: "success" | "error" | "warning";
     message?: string;
   };
@@ -29,39 +29,23 @@ export class TableApiService extends BaseApiClient {
    * Get user's saved tables
    */
   async getTables(): Promise<GetTablesResponse> {
-    console.log("Fetching tables...");
-    try {
-      const response = await this.get<GetTablesResponse>("/users/get_tables");
-      console.log("Tables fetched successfully:", response);
-      return response;
-    } catch (error) {
-      console.error("Error fetching tables:", error);
-      // Return empty tables array if 404
-      if (error instanceof Error && error.message.includes("404")) {
-        return {
-          status: { status: "success", message: "No tables found" },
-          tables: [],
-        };
-      }
-      throw error;
-    }
+    return await this.get<GetTablesResponse>("/users/get_tables");
   }
 
   /**
    * Get data for a specific table
    */
-  async getTableData(tableName: string): Promise<Table | undefined> {
-    const response = await this.get<QueryResponse>(
+  async getTableData(tableName: string): Promise<QueryResponse> {
+    return await this.get<QueryResponse>(
       `/users/get_table_data?table_name=${encodeURIComponent(tableName)}`
     );
-    return response.table;
   }
 
   /**
    * Save a table from query results
    */
   async saveTable(saveTableData: SaveTableRequest): Promise<SaveTableResponse> {
-    return this.post<SaveTableResponse, SaveTableRequest>(
+    return this.post<SaveTableRequest, SaveTableResponse>(
       "/users/save_table",
       saveTableData
     );
@@ -71,7 +55,7 @@ export class TableApiService extends BaseApiClient {
    * Delete one or more tables
    */
   async deleteTables(tableNames: string[]): Promise<DeleteTableResponse> {
-    return this.post<DeleteTableResponse>("/users/delete_table", {
+    return this.post<unknown, DeleteTableResponse>("/users/delete_table", {
       table_names: tableNames,
     });
   }
@@ -79,10 +63,9 @@ export class TableApiService extends BaseApiClient {
   /**
    * Get table data for export (CSV, etc.)
    */
-  async getTableDataForExport(tableName: string): Promise<Table | undefined> {
-    const response = await this.get<QueryResponse>(
+  async getTableDataForExport(tableName: string): Promise<QueryResponse> {
+    return await this.get<QueryResponse>(
       `/users/get_table_data?table_name=${encodeURIComponent(tableName)}`
     );
-    return response.table;
   }
 }

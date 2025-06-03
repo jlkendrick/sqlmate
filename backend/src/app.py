@@ -24,5 +24,4 @@ app.include_router(router=users.router, prefix="/users")
 app.include_router(router=query.router, prefix="/query")
 
 if __name__ == "__main__":
-    port = PORT
-    uvicorn.run("app:app", host="0.0.0.0", port=port, reload=True)
+    uvicorn.run("app:app", host="0.0.0.0", port=PORT, reload=True, )

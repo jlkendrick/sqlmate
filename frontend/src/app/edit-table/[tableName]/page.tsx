@@ -14,7 +14,7 @@ import type {
   Table,
   TableUpdateAttribute,
   TableUpdateConstraint,
-} from "@/types/common";
+} from "@/types/http";
 
 export default function EditTablePage() {
   // Use the useParams hook to get the tableName parameter

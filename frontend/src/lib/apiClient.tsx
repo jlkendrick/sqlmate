@@ -8,7 +8,7 @@ import type {
   StatusResponse,
   Table,
   DeleteTableResponse,
-} from "@/types/common";
+} from "@/types/http";
 
 const COMMON_OPTS = {
   headers: { "Content-Type": "application/json" },

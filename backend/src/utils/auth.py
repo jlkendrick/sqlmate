@@ -24,23 +24,24 @@ def get_token(authorization: str | None) -> str:
 		return ""
 	return authorization.split(" ")[1]
 
-# Return (username, error_msg)
-def check_user(token: str | None) -> Tuple[str, str]:
+# Return (user_id, error_msg)
+def check_user(token: str | None) -> Tuple[str, str, str]:
 	if not token:
-		return "", "Token is missing"
+		return "", "", "Token is missing"
 	
 	if not token.startswith("Bearer "):
-		return "", "Invalid token format"
+		return "", "", "Invalid token format"
 	
 	token = token.split(" ")[1]
 	try:
 		payload = verify_and_decode_token(token)
-		user = payload.get("user")
-		if not user:
-			return "", "User not found in token"
-		return user, ""
+		user_id = payload.get("id")
+		username = payload.get("username")
+		if not user_id or not username:
+			return "", "", "Invalid token payload"
+		return user_id, username, ""
 	except Exception as _:
-		return "", "Invalid token"
+		return "", "", "Invalid token"
 
 def verify_and_decode_token(token: str) -> dict:
 		try:
