@@ -1,7 +1,8 @@
+from routers import user_data
 from utils.constants import PORT
 
 import uvicorn
-from routers import auth, users, query
+from routers import auth, query
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -20,7 +21,7 @@ def home():
     return "Welcome to SQLMate API!"
 
 app.include_router(router=auth.router, prefix="/auth")
-app.include_router(router=users.router, prefix="/users")
+app.include_router(router=user_data.router, prefix="/users")
 app.include_router(router=query.router, prefix="/query")
 
 if __name__ == "__main__":

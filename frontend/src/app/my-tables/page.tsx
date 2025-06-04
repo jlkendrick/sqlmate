@@ -104,23 +104,17 @@ export default function MyTablesPage() {
         { table_names: selectedTables }
       );
 
-      if (response.success) {
-        // Remove all deleted tables from the list
-        setTables((prev) =>
-          prev.filter((table) => !selectedTables.includes(table.table_name))
-        );
-        // Clear selections
-        setSelectedTables([]);
-        toast({
-          title: "Tables deleted",
-          description: `Successfully deleted ${response.deleted_tables.length} tables`,
-        });
-      } else {
-        setError(`Failed to delete tables: ${response.message}`);
-      }
-    } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : String(err);
-      setError(errorMessage || "Failed to delete table");
+      setTables((prev) =>
+        prev.filter((table) => !selectedTables.includes(table.table_name))
+      );
+      // Clear selections
+      setSelectedTables([]);
+      toast({
+        title: "Tables deleted",
+        description: `Successfully deleted ${response.deleted_tables!!.length} tables`,
+      });
+    } catch (err: any) {
+      setError(err.message || "Failed to delete table");
     } finally {
       setDeleteLoading(false);
     }
@@ -134,20 +128,21 @@ export default function MyTablesPage() {
   const handleDownloadCSV = async (tableName: string) => {
     setDownloadLoading(tableName);
     try {
-      const tableData = await getTableDataForExport(tableName);
-      downloadTableAsCSV(tableData, tableName);
+      const tableData = await tableService.getTableDataForExport(tableName);
+      downloadTableAsCSV(tableData.table!!, tableName);
       toast({
         title: "Download successful",
         description: `${tableName}.csv has been downloaded`,
       });
-    } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : String(err);
-      setError(errorMessage || "Failed to download table");
+
+    } catch (err: any) {
+      setError(err.message || "Failed to download table");
       toast({
         title: "Download failed",
-        description: errorMessage || "Failed to download table",
+        description: err.message || "Failed to download table",
         variant: "destructive",
       });
+      
     } finally {
       setDownloadLoading(null);
     }
