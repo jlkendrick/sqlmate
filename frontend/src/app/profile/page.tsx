@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { Header } from "@/components/header";
-import { deleteUser } from "@/lib/apiClient";
+import { authService } from "@/services/api";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -41,19 +41,18 @@ export default function ProfilePage() {
   const handleDeleteAccount = async () => {
     setIsDeleting(true);
     try {
-      await deleteUser();
+      await authService.deleteUser();
       toast({
         title: "Account deleted",
         description: "Your account has been successfully deleted.",
       });
       logout(); // Log the user out after successful deletion
       router.push("/"); // Redirect to home page
-    } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
+    } catch (err: any) {
+      
       toast({
         title: "Error",
-        description: errorMessage || "Failed to delete account",
+        description: err.message || "Failed to delete account",
         variant: "destructive",
       });
       setIsDeleting(false); // Only reset if there was an error

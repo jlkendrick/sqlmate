@@ -286,15 +286,16 @@ class UpdateTableRequest(BaseModel):
 class UpdateTableResponse(BaseModel):
 	status: StatusResponse
 	rows_affected: int | None = None
-@router.post("/update_table")
-def update(req: UpdateTableRequest, authorization: Optional[str] = Header(None)):
+@router.post("/update_table", response_model=UpdateTableResponse, status_code=status.HTTP_200_OK)
+def update(req: UpdateTableRequest, response: Response, authorization: Optional[str] = Header(None)):
 	# Check the authentication of the user
 	user_id, username, error = check_user(authorization)
 	if error:
+		response.status_code = status.HTTP_401_UNAUTHORIZED
 		return UpdateTableResponse(
 			status=StatusResponse(
 				status="error",
-				message=error
+				message="UNAUTHORIZED:" + error
 			)
 		)
 

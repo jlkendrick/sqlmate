@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, RefreshCw, CheckCircle, AlertCircle } from "lucide-react";
 import { useRouter, useParams } from "next/navigation";
-import { getTableData, postTableUpdate } from "@/lib/apiClient";
+import { tableService, queryService } from "@/services/api";
 import { QueryResultTable } from "@/components/queryResultTable";
 import { TableUpdatePanel } from "@/components/tableUpdatePanel";
 import { toast } from "@/components/ui/use-toast";
@@ -41,16 +41,16 @@ export default function EditTablePage() {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await getTableData(tableName);
-      setTableData(data);
-    } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : String(err);
-      setError(errorMessage || "Failed to fetch table data");
+      const data = await tableService.getTableData(tableName);
+      setTableData(data.table!!);
+
+    } catch (err: any) {
+      
+      setError(err.message || "Failed to fetch table data");
 
       // Handle unauthorized errors
       if (
-        errorMessage.includes("401") ||
-        errorMessage.includes("unauthorized")
+        err.message.includes("UNAUTHORIZED")
       ) {
         router.push("/login");
         return;
@@ -77,11 +77,11 @@ export default function EditTablePage() {
       };
 
       // Send the update request to the backend
-      const result = await postTableUpdate(updateData);
+      const result = await queryService.updateTable({ query_params: updateData });
 
       setUpdateResult({
-        success: result.success,
-        message: result.message,
+        success: result.status.status === "success",
+        message: result.status.message || "Table updated successfully",
         rowsAffected: result.rows_affected,
       });
 

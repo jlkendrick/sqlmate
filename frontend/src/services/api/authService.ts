@@ -74,7 +74,7 @@ export class AuthApiService extends BaseApiClient {
   /**
    * Delete user account
    */
-  async deleteAccount(): Promise<DeleteUserResponse> {
+  async deleteUser(): Promise<DeleteUserResponse> {
     return await this.delete<DeleteUserResponse>("/auth/delete_user");
   }
 }
