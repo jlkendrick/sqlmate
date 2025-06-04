@@ -32,6 +32,10 @@ export interface SaveTableResponse {
   status: StatusResponse;
 }
 
+export interface DeleteTableRequest {
+  table_names: string[];
+}
+
 export interface DeleteTableResponse {
   status: StatusResponse;
   deleted_tables?: string[];

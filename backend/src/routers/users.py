@@ -1,6 +1,6 @@
 from utils.db import get_cursor, get_timestamp
 from utils.serialization import query_output_to_table
-from utils.auth import check_user, get_token
+from utils.auth import check_user
 from utils.generators import generate_update_query
 from models.http import StatusResponse, Table, UpdateQueryParams
 from models.queries.update import UpdateQuery
@@ -83,15 +83,14 @@ def save_table(req: SaveTableRequest, response: Response, authorization: Optiona
 	)
 
 class DeleteTableRequest(BaseModel):
-	table_names: str | list[str]
+	table_names: list[str]
 class DeleteTableResponse(BaseModel):
 	details: StatusResponse
 	deleted_tables: list[str] | None = None
 @router.post("/delete_table", response_model=DeleteTableResponse, status_code=status.HTTP_200_OK)
 def drop_table(req: DeleteTableRequest, response: Response, authorization: Optional[str] = Header(None)):
 	# Check the authentication of the user
-	token = get_token(authorization)
-	user_id, username, error = check_user(token)
+	user_id, _, error = check_user(authorization)
 	if error:
 		response.status_code = status.HTTP_401_UNAUTHORIZED
 		return DeleteTableResponse(
@@ -137,7 +136,7 @@ def drop_table(req: DeleteTableRequest, response: Response, authorization: Optio
 							message="Invalid table name"
 						)
 					)
-				cur.execute("DELETE FROM user_tables WHERE username = %s AND table_name = %s", (username, table_name))
+				cur.execute("DELETE FROM user_tables WHERE user_id = %s AND table_name = %s", (user_id, table_name))
 		except mysql.connector.Error as e:
 			print(e)
 			response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -167,7 +166,7 @@ def drop_table(req: DeleteTableRequest, response: Response, authorization: Optio
 			status="success",
 			message="Table(s) dropped successfully"
 		),
-		deleted_tables=table_names
+		deleted_tables=list(map(str, table_names))
 	)
 
 class GetTablesReponse(BaseModel):

@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  getTables,
-  deleteUserTables,
-  getTableDataForExport,
-} from "@/lib/apiClient";
+// import {
+//   getTables,
+//   deleteUserTables,
+//   getTableDataForExport,
+// } from "@/lib/apiClient";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { TrashIcon, RefreshCw, PencilIcon, Download } from "lucide-react";
@@ -76,25 +76,20 @@ export default function MyTablesPage() {
   const handleDeleteTable = async (tableName: string) => {
     setDeleteLoading(true);
     try {
-      const response: DeleteTableResponse = await deleteUserTables([tableName]);
+      const response = await tableService.deleteTables({ table_names: [tableName] });
 
-      if (response.success) {
-        // Remove deleted table from the list
-        setTables((prev) =>
-          prev.filter((table) => table.table_name !== tableName)
-        );
-        // Remove from selected tables if it was selected
-        setSelectedTables((prev) => prev.filter((name) => name !== tableName));
-        toast({
-          title: "Table deleted",
-          description: `Successfully deleted table: ${tableName}`,
-        });
-      } else {
-        setError(`Failed to delete table: ${response.message}`);
-      }
-    } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : String(err);
-      setError(errorMessage || "Failed to delete table");
+      // Remove deleted table from the list
+      setTables((prev) =>
+        prev.filter((table) => table.table_name !== tableName)
+      );
+      // Remove from selected tables if it was selected
+      setSelectedTables((prev) => prev.filter((name) => name !== tableName));
+      toast({
+        title: "Table deleted",
+        description: `Successfully deleted table: ${tableName}`,
+      });
+    } catch (err: any) {
+      setError(err.message || "Failed to delete table");
     } finally {
       setDeleteLoading(false);
     }
@@ -105,8 +100,8 @@ export default function MyTablesPage() {
 
     setDeleteLoading(true);
     try {
-      const response: DeleteTableResponse = await deleteUserTables(
-        selectedTables
+      const response = await tableService.deleteTables(
+        { table_names: selectedTables }
       );
 
       if (response.success) {

@@ -56,7 +56,7 @@ export function ConsolePanel({
         query: queryOutput,
       };
 
-      // Send the request to save the table
+      // Send the request to save the table (no need to get the response here)
       await postUserTable(saveTableData);
 
       // Success

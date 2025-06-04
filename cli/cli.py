@@ -2,8 +2,8 @@ import argparse
 import os
 import subprocess
 
-from .setup.env_setup import generate_defaults, prompt_for_credentials, create_env_file, DOCKER_COMPOSE_FILE
-from .setup.db_setup import initialize_database
+from .setup.env_setup import generate_defaults, prompt_for_credentials, create_env_file, load_config, DOCKER_COMPOSE_FILE
+from .setup.db_setup import initialize_database, connect_with_retry
 
 def init():
     print("🔧 Initializing SQLMate project...")
@@ -32,20 +32,23 @@ def init():
 def cleanup():
     print("🧹 Cleaning up SQLMate project...")
     
-    # Read credentials from the env file
-    env_file_path = os.path.join(
-        os.path.expanduser('~'),
-        '.sqlmate',
-        'secrets.env'
-    )
-    if os.path.exists(env_file_path):
-        with open(env_file_path, 'r') as f:
-            lines = f.readlines()
-        
-        
+    credentials = load_config()
+    connection = connect_with_retry(credentials, from_init=False)
+    if not connection:
+        print("❌ Failed to connect to the database for cleanup.")
+        return
     
-    # Optionally, you can add more cleanup tasks here
-
+    # Remove the procedure in the user's source database and then the sqlmate database
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute(f"DROP PROCEDURE IF EXISTS {credentials["DB_NAME"]}.save_user_table")
+            cursor.execute("DROP DATABASE IF EXISTS sqlmate")
+        print("✅ Cleanup completed")
+    except Exception as e:
+        print(f"❌ Error during cleanup: {e}")
+    finally:
+        connection.commit()
+        connection.close()
 
 def run():
     print("🚀 Starting SQLMate with Docker...")
@@ -87,11 +90,14 @@ def main():
 
     subparsers.add_parser("init", help="Initialize the project")
     subparsers.add_parser("run", help="Run the Docker app")
+    subparsers.add_parser("cleanup", help="Cleanup SQLMate project (removes procedures, triggers and database)")
 
     args = parser.parse_args()
     if args.command == "init":
         init()
     elif args.command == "run":
         run()
+    elif args.command == "cleanup":
+        cleanup()
     else:
         parser.print_help()

@@ -19,15 +19,16 @@ from .sql.procedures import (
     CREATE_SAVE_USER_TABLE_PROC,
     CREATE_PROCESS_TABLE_TO_DROP_PROC
 )
-from typing import Optional
+from typing import Optional, Dict
 import mysql.connector
 from mysql.connector.abstracts import MySQLConnectionAbstract
 from mysql.connector.pooling import PooledMySQLConnection
 import time
 
-def connect_with_retry(credentials: dict,
+def connect_with_retry(credentials: Dict[str, str],
         max_retries: int=5,
-        delay: int=2)  \
+        delay: int=2,
+        from_init: bool = True)  \
     -> Optional[MySQLConnectionAbstract | PooledMySQLConnection]:
     """
     Attempt to connect to the MySQL server with retries.
@@ -36,6 +37,7 @@ def connect_with_retry(credentials: dict,
         credentials (dict): Database credentials
         max_retries (int): Maximum number of connection attempts
         delay (int): Seconds to wait between retries
+        from_init (bool): Flag to indicate if called from initialization
         
     Returns:
         connection: MySQL connection object or None if connection failed
@@ -57,7 +59,8 @@ def connect_with_retry(credentials: dict,
                 print(f"❌ Database '{credentials['DB_NAME']}' does not exist. Please create it first.")
                 connection.close()
                 return None
-            print(f"✅ Database '{credentials['DB_NAME']}' found.")
+            if from_init:
+                print(f"✅ Database '{credentials['DB_NAME']}' found.")
 
             # Create the 'sqlmate' database if it doesn't exist
             cursor = connection.cursor()

@@ -1,5 +1,6 @@
 import secrets
 import getpass
+from typing import Dict
 from pathlib import Path
 from importlib.resources import files
 import os
@@ -57,3 +58,17 @@ def create_env_file(credentials, target_path):
         f.write(env_content)
     
     print(f"✅ Created configuration file at {target_path}")
+
+def load_config() -> Dict[str, str]:
+    """Load the configuration from the secrets.env file."""
+    if not os.path.exists(SECRETS_FILE):
+        print("⚠️ Configuration file not found. Please run `sqlmate init` first.")
+        return {}
+
+    config = {}
+    with open(SECRETS_FILE, "r") as f:
+        for line in f:
+            key, value = line.strip().split("=", 1)
+            config[key] = value.strip("'\"")
+
+    return config

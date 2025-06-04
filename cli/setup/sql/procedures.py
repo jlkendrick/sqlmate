@@ -36,31 +36,34 @@ END
 CREATE_PROCESS_TABLE_TO_DROP_PROC = """
 CREATE PROCEDURE sqlmate.process_tables_to_drop()
 BEGIN
-    DECLARE v_username VARCHAR(50);
+	DECLARE v_user_id INT;
     DECLARE v_table_name VARCHAR(100);
     DECLARE v_done INT DEFAULT FALSE;
     DECLARE v_sql VARCHAR(500);
     
     -- Cursor to iterate through tables_to_drop
     DECLARE cur CURSOR FOR 
-        SELECT username, table_name FROM tables_to_drop LIMIT 100;
+        SELECT user_id, table_name FROM tables_to_drop LIMIT 100;
     
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_done = TRUE;
     
     OPEN cur;
     
     REPEAT
-        FETCH cur INTO v_username, v_table_name;
+        FETCH cur INTO v_user_id, v_table_name;
         
         IF NOT v_done THEN
+            -- Get the username for this user_id
+            SET @v_username = (SELECT username FROM sqlmate.users WHERE id = v_user_id LIMIT 1);
+            
 			-- Drop the table
-			SET @sql = CONCAT('DROP TABLE IF EXISTS u_', v_username, '_', v_table_name);
+			SET @sql = CONCAT('DROP TABLE IF EXISTS u_', @v_username, '_', v_table_name);
 			PREPARE stmt FROM @sql;
 			EXECUTE stmt;
 			DEALLOCATE PREPARE stmt;
 			
 			-- Remove record from log table
-			DELETE FROM tables_to_drop WHERE username = v_username AND table_name = v_table_name;
+			DELETE FROM tables_to_drop WHERE user_id = v_user_id AND table_name = v_table_name;
 		END IF;
     UNTIL v_done
     END REPEAT;

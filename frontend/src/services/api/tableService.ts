@@ -3,6 +3,7 @@ import {
   Table,
   SaveTableRequest,
   SaveTableResponse,
+  DeleteTableRequest,
   DeleteTableResponse,
   QueryResponse,
 } from "@/types/http";
@@ -54,10 +55,11 @@ export class TableApiService extends BaseApiClient {
   /**
    * Delete one or more tables
    */
-  async deleteTables(tableNames: string[]): Promise<DeleteTableResponse> {
-    return this.post<unknown, DeleteTableResponse>("/users/delete_table", {
-      table_names: tableNames,
-    });
+  async deleteTables(tableNames: DeleteTableRequest): Promise<DeleteTableResponse> {
+    return this.post<DeleteTableRequest, DeleteTableResponse>(
+      "/users/delete_table",
+      tableNames
+    );
   }
 
   /**

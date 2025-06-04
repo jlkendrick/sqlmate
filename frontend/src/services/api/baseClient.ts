@@ -55,7 +55,6 @@ export class BaseApiClient {
       body: JSON.stringify(data),
     });
 
-	
     return this.handleResponse<U>(response);
   }
 
