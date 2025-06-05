@@ -29,6 +29,8 @@ class Update:
     def process_value(self, value: Any) -> str:
         table_name, attribute_name = self.attribute.split(".")
         db_type = metadata.get_type(table_name, attribute_name)
+        print(table_name, attribute_name)
+        print("DB_TYPE:", db_type)
         if db_type in ["STR", "DATE"] :
             return f"'{str(value)}'"
         # db_type in ["INT", "BOOL", "FLOAT"]

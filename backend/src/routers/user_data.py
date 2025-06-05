@@ -215,25 +215,24 @@ def get_tables(response: Response, authorization: Optional[str] = Header(None)) 
 		tables=tables
 	)
 
-class GetTableDataRequest(BaseModel):
-	table_name: str
 class GetTableDataResponse(BaseModel):
 	status: StatusResponse
 	table: Table | None = None
-@router.get("/get_table_data")
-def get_table_data(req: GetTableDataRequest, authorization: Optional[str] = Header(None)) -> GetTableDataResponse:
+@router.get("/get_table_data", response_model=GetTableDataResponse, status_code=status.HTTP_200_OK)
+def get_table_data(table_name: str, response: Response, authorization: Optional[str] = Header(None)) -> GetTableDataResponse:
 	# Check the authentication of the user
 	user_id, username, error = check_user(authorization)
 	if error:
+		response.status_code = status.HTTP_401_UNAUTHORIZED
 		return GetTableDataResponse(
 			status=StatusResponse(
 				status="error",
 				message=error
 			)
 		)
-
-	table_name = req.table_name
+	
 	if not table_name:
+		response.status_code = status.HTTP_400_BAD_REQUEST
 		return GetTableDataResponse(
 			status=StatusResponse(
 				status="error",
@@ -257,6 +256,7 @@ def get_table_data(req: GetTableDataRequest, authorization: Optional[str] = Head
 			column_names: List[str] = [i[0] for i in cur.description]
 		except mysql.connector.Error as e:
 			print(e)
+			response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
 			return GetTableDataResponse(
 				status=StatusResponse(
 					status="error",
@@ -264,6 +264,7 @@ def get_table_data(req: GetTableDataRequest, authorization: Optional[str] = Head
 				)
 			)
 	if not rows:
+		response.status_code = status.HTTP_404_NOT_FOUND
 		return GetTableDataResponse(
 			status=StatusResponse(
 				status="success",
@@ -298,12 +299,14 @@ def update(req: UpdateTableRequest, response: Response, authorization: Optional[
 				message="UNAUTHORIZED:" + error
 			)
 		)
+	
+	print(f"User {username} is updating a table with query: {req.query_params}")
 
 	# Validate the input data
 	try:
 		query = UpdateQuery(req.query_params, username)
 	except ValueError as e:
-		print(e)
+		print("Here:", e)
 		return UpdateTableResponse(
 			status=StatusResponse(
 				status="error",

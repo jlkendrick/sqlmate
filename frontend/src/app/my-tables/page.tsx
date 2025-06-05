@@ -11,7 +11,6 @@ import { Button } from "@/components/ui/button";
 import { TrashIcon, RefreshCw, PencilIcon, Download } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { Header } from "@/components/header";
-import { DeleteTableResponse } from "@/types/http";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
@@ -40,9 +39,7 @@ export default function MyTablesPage() {
       setTables(data.tables || []);
       // Clear selections when refreshing
       setSelectedTables([]);
-
     } catch (err: any) {
-
       console.log(err);
 
       toast({
@@ -76,7 +73,9 @@ export default function MyTablesPage() {
   const handleDeleteTable = async (tableName: string) => {
     setDeleteLoading(true);
     try {
-      const response = await tableService.deleteTables({ table_names: [tableName] });
+      const response = await tableService.deleteTables({
+        table_names: [tableName],
+      });
 
       // Remove deleted table from the list
       setTables((prev) =>
@@ -100,9 +99,9 @@ export default function MyTablesPage() {
 
     setDeleteLoading(true);
     try {
-      const response = await tableService.deleteTables(
-        { table_names: selectedTables }
-      );
+      const response = await tableService.deleteTables({
+        table_names: selectedTables,
+      });
 
       setTables((prev) =>
         prev.filter((table) => !selectedTables.includes(table.table_name))
@@ -111,7 +110,9 @@ export default function MyTablesPage() {
       setSelectedTables([]);
       toast({
         title: "Tables deleted",
-        description: `Successfully deleted ${response.deleted_tables!!.length} tables`,
+        description: `Successfully deleted ${
+          response.deleted_tables!!.length
+        } tables`,
       });
     } catch (err: any) {
       setError(err.message || "Failed to delete table");
@@ -129,12 +130,32 @@ export default function MyTablesPage() {
     setDownloadLoading(tableName);
     try {
       const tableData = await tableService.getTableDataForExport(tableName);
-      downloadTableAsCSV(tableData.table!!, tableName);
-      toast({
-        title: "Download successful",
-        description: `${tableName}.csv has been downloaded`,
-      });
 
+      // Create a new table with the same structure but convert rows from arrays to objects
+      if (tableData.table) {
+        const originalTable = tableData.table;
+
+        // Create a modified table with rows as objects instead of arrays
+        const modifiedTable = {
+          ...originalTable,
+          rows: originalTable.rows.map((row) => {
+            // Convert each row from array to object using column names as keys
+            const rowObject: Record<string, any> = {};
+            originalTable.columns.forEach((column, index) => {
+              rowObject[column] = row[index];
+            });
+            return rowObject;
+          }),
+        };
+
+        downloadTableAsCSV(modifiedTable, tableName);
+        toast({
+          title: "Download successful",
+          description: `${tableName}.csv has been downloaded`,
+        });
+      } else {
+        throw new Error("No table data received");
+      }
     } catch (err: any) {
       setError(err.message || "Failed to download table");
       toast({
@@ -142,7 +163,6 @@ export default function MyTablesPage() {
         description: err.message || "Failed to download table",
         variant: "destructive",
       });
-      
     } finally {
       setDownloadLoading(null);
     }

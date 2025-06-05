@@ -9,7 +9,7 @@ def generate_query(queries: List[BaseQuery], options: dict) -> str:
 
     select_clause = "SELECT "
     for table_query in queries:
-        select_clause += f"{table_query.get_SELECT_clause()},"
+        select_clause += f"{table_query.get_SELECT_clause(len(queries))},"
     select_clause = select_clause[:-1]
     query += select_clause + '\n'
     

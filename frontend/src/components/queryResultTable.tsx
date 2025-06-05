@@ -30,8 +30,8 @@ export const QueryResultTable: React.FC<Props> = ({ data }) => {
       <table className="min-w-full text-sm text-left text-gray-700">
         <thead className="bg-gray-100 font-semibold">
           <tr>
-            {columns.map((col) => (
-              <th key={col} className="px-4 py-2 border-b">
+            {columns.map((col, index) => (
+              <th key={`col-${index}`} className="px-4 py-2 border-b">
                 {col}
               </th>
             ))}

@@ -158,8 +158,8 @@ export function TableUpdatePanel({
                 }
               >
                 <option value="">Select attribute</option>
-                {columns.map((col) => (
-                  <option key={col.name} value={col.name}>
+                {columns.map((col, index) => (
+                  <option key={`update-col-${index}`} value={col.name}>
                     {col.name}
                   </option>
                 ))}
@@ -210,8 +210,8 @@ export function TableUpdatePanel({
                 }
               >
                 <option value="">Select attribute</option>
-                {columns.map((col) => (
-                  <option key={col.name} value={col.name}>
+                {columns.map((col, index) => (
+                  <option key={`constraint-col-${index}`} value={col.name}>
                     {col.name}
                   </option>
                 ))}

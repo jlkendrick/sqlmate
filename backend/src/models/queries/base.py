@@ -8,8 +8,8 @@ from ..http import QueryParams, UpdateQueryParams
 class BaseQuery:
     def __init__(self, input: QueryParams | UpdateQueryParams, username: str = "") -> None:
         self.table_name: str = self.format_table_name(username, input.get("table", ""))
-        if not input.get("attributes"):
-            raise ValueError(f"No attribues selected for {self.table_name} table")
+        if not input.get("attributes") and not input.get("updates"):
+            raise ValueError(f"No attribues or updates selected for {self.table_name} table")
         self.attributes: List[Attribute] = [Attribute(details, self.table_name) for details in input.get("attributes", [])]
         self.constraints: List[Constraint] = [Constraint(details, self.table_name) for details in input.get("constraints", [])]
         self.group_by: List[str] = [f"{self.table_name}.{attribute}" for attribute in input.get("group_by", [])]
@@ -28,7 +28,7 @@ class BaseQuery:
             return f'u_{username}_{table_name}'
         return table_name
 
-    def get_SELECT_clause(self) -> str:
+    def get_SELECT_clause(self, num_tables: int) -> str:
         clause = ""
 
         for attr in self.attributes:
@@ -37,7 +37,7 @@ class BaseQuery:
                 alias = attr.alias if attr.alias else "_".join([agg_type] + attr.attribute.split("."))
             else:
                 clause += f"{attr.attribute}"
-                alias = attr.alias if attr.alias else "_".join(attr.attribute.split("."))
+                alias = attr.alias if attr.alias else ("_".join(attr.attribute.split(".")) if num_tables > 1 else attr.attribute.split(".")[-1])
             self.alias_map[attr.attribute] = alias # For use in the ORDER BY clause
             clause += f" AS {alias},"
         clause = clause[:-1]

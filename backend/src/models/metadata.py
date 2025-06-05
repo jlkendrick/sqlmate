@@ -77,12 +77,15 @@ class Metadata:
 			"""
 			SELECT TABLE_NAME, COLUMN_NAME, DATA_TYPE
 			FROM INFORMATION_SCHEMA.COLUMNS
-			WHERE TABLE_SCHEMA = %s
+			WHERE TABLE_SCHEMA = 'sqlmate'
+				OR TABLE_SCHEMA = %s AND TABLE_NAME NOT LIKE 'u_%'
 			ORDER BY TABLE_NAME, ORDINAL_POSITION;
-			""", (DB_NAME, )
+			""", (DB_NAME,)
 		)
 		rows: List[Any] = self.cursor.fetchall()
 		for table, column, data_type in rows:
+			if table == "u_mee_yessuh":
+				print(column, data_type)
 			self.col_types[table].add(column, data_type)
 
 	def generate_graph(self) -> None:
