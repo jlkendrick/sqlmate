@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/contexts/authContext";
 import { Avatar } from "./ui/avatar";
 import { Button } from "./ui/button";
 import {

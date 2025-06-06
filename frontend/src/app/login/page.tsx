@@ -8,7 +8,7 @@ import Link from "next/link";
 import { Header } from "@/components/header";
 import { authService } from "@/services/api";
 import { toast } from "@/components/ui/use-toast";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/contexts/authContext";
 
 export default function LoginPage() {
   const router = useRouter();

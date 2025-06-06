@@ -58,14 +58,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (username: string, password: string) => {
     try {
-      const response = await login(username, password);
+      const response = await authService.login(username, password);
       const { token } = response;
-      localStorage.setItem("token", token);
       setToken(token);
 
       // Fetch user data after successful login
-      const userData = await AuthApiService.getCurrentUser();
-      setUser(userData);
+      const userData = await authService.getCurrentUser();
+      setUser({ 
+        username: userData.username || '', 
+        email: userData.email || '' 
+      });
       return;
     } catch (error) {
       throw error;

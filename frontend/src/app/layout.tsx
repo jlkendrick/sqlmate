@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { AuthProvider } from "@/contexts/AuthContext";
+import { AuthProvider } from "@/contexts/authContext";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 
