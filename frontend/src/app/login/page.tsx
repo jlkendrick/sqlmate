@@ -31,13 +31,13 @@ export default function LoginPage() {
 
       localStorage.setItem("token", token);
       setToken(token);
-      
+
       const userInfo = await authService.getCurrentUser();
       setUser({
         username: userInfo.username!!,
         email: userInfo.email!!,
       });
-      
+
       toast({
         title: "Login successful!",
         description: "Welcome back! Redirecting to the home screen.",
@@ -45,7 +45,6 @@ export default function LoginPage() {
       });
 
       router.push("/");
-      
     } catch (err: any) {
       console.error("Login error:", err);
 

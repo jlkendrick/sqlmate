@@ -49,7 +49,6 @@ export default function ProfilePage() {
       logout(); // Log the user out after successful deletion
       router.push("/"); // Redirect to home page
     } catch (err: any) {
-      
       toast({
         title: "Error",
         description: err.message || "Failed to delete account",
