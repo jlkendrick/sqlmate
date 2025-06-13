@@ -1,8 +1,7 @@
-from routers import user_data
 from utils.constants import PORT
 
 import uvicorn
-from routers import auth, query
+from routers import auth, user_data, query
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware

@@ -5,7 +5,7 @@ from models.http import StatusResponse, Table, QueryParams
 from models.queries.base import BaseQuery
 
 from typing import Any, Dict, List, Optional
-from fastapi import APIRouter
+from fastapi import APIRouter, status, Response
 from pydantic import BaseModel
 import mysql.connector
 
@@ -19,16 +19,14 @@ class QueryRequest(BaseModel):
 class QueryResponse(BaseModel):
 	status: StatusResponse
 	table: Table | None = None
-@router.post("/")
-def run_query(req: QueryRequest):
-	with open("../logs/input_log.txt", "w") as f:
-		f.write(req.model_dump_json(indent=4))
-
+@router.post("", response_model=QueryResponse, status_code=status.HTTP_200_OK)
+def run_query(req: QueryRequest, response: Response) -> QueryResponse:
 	# Validate the input data
 	try:
 		query: List[BaseQuery] = [BaseQuery(details) for details in req.query_params]
 	except ValueError as e:
 		print(e)
+		response.status_code = status.HTTP_400_BAD_REQUEST
 		return QueryResponse(
 			status=StatusResponse(
 				status="error",
@@ -46,6 +44,9 @@ def run_query(req: QueryRequest):
 		with get_cursor() as cursor:
 			cursor.execute(query_body)
 			if cursor.description is None:
+				# If there are no results, return an error
+				print("No data found")
+				response.status_code = status.HTTP_404_NOT_FOUND
 				return QueryResponse(
 					status=StatusResponse(
 						status="error",
@@ -57,6 +58,7 @@ def run_query(req: QueryRequest):
 			rows: Any = cursor.fetchall()
 	except mysql.connector.Error as e:
 		print(e)
+		response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
 		return QueryResponse(
 			status=StatusResponse(
 				status="error",
