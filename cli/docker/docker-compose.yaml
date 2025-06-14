@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   backend:
@@ -14,7 +14,9 @@ services:
     build:
       context: ../../frontend
       dockerfile: Dockerfile
+      args:
+        - BACKEND_URL=${BACKEND_URL:-http://backend:8080}
     environment:
-      - BACKEND_URL=http://backend:8080
+      - BACKEND_URL=${BACKEND_URL:-http://backend:8080}
     ports:
       - "3000:3000"
