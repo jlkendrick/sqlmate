@@ -21,7 +21,7 @@ def init():
     credentials = prompt_for_credentials(defaults)
     create_env_file(credentials, env_file_path)
     
-    # Validate and initialize the database with the provided credentials
+    # Validate and initialize the database with the provided credentials. Generate JSON schema file for frontend use.
     db_setup_successful = initialize_database(credentials)
     
     if db_setup_successful:
