@@ -1,6 +1,6 @@
-from models.queries.update import UpdateQuery
-from models.queries.base import BaseQuery
-from models.metadata import metadata
+from classes.queries.update import UpdateQuery
+from classes.queries.base import BaseQuery
+from classes.metadata import metadata
 from typing import List
 
 

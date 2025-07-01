@@ -2,9 +2,9 @@ from utils.db import get_cursor, get_timestamp
 from utils.serialization import query_output_to_table
 from utils.auth import check_user
 from utils.generators import generate_update_query
-from models.http import StatusResponse, Table, UpdateQueryParams
-from models.queries.update import UpdateQuery
-from models.metadata import metadata
+from classes.http import StatusResponse, Table, UpdateQueryParams
+from classes.queries.update import UpdateQuery
+from classes.metadata import metadata
 
 
 from typing import Any, Dict, List, Optional

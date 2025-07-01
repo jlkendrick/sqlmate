@@ -1,6 +1,6 @@
 from utils.auth import create_access_token, check_user, hash_password, check_password, get_token
 from utils.db import get_cursor
-from models.http import StatusResponse
+from classes.http import StatusResponse
 
 from typing import Any, Optional
 from fastapi import APIRouter, Header, Response, status

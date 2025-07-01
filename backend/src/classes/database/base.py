@@ -1,4 +1,4 @@
-from .constants import DB_HOST, DB_USER, DB_PASSWORD, DB_NAME
+from src.utils.constants import DB_HOST, DB_USER, DB_PASSWORD, DB_NAME
 from contextlib import contextmanager
 from typing import Generator, Any
 from datetime import datetime
