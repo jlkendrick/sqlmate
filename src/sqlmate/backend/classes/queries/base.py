@@ -38,8 +38,8 @@ class BaseQuery:
             else:
                 clause += f"{attr.attribute}"
                 alias = attr.alias if attr.alias else ("_".join(attr.attribute.split(".")) if num_tables > 1 else attr.attribute.split(".")[-1])
-            self.alias_map[attr.attribute] = alias # For use in the ORDER BY clause
-            clause += f" AS {alias},"
+            self.alias_map[attr.attribute] = '"' + alias + '"' # For use in the ORDER BY clause
+            clause += f' AS "{alias}",'
         clause = clause[:-1]
 
         return clause
